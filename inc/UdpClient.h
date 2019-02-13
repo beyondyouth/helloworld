@@ -1,5 +1,5 @@
-#ifndef UDP_CLIENT_H__
-#define UDP_CLIENT_H__
+#ifndef UDP_CLIENT_H_
+#define UDP_CLIENT_H_
 
 
 class UdpClient : public Socket
@@ -20,4 +20,4 @@ private:
 
 };
 
-#endif/*UDP_CLIENT_H__*/
+#endif /* UDP_CLIENT_H_ */

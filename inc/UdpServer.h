@@ -1,5 +1,5 @@
-#ifndef UDP_SERVER_H__
-#define UDP_SERVER_H__
+#ifndef UDP_SERVER_H_
+#define UDP_SERVER_H_
 
 
 class UdpServer : public Socket
@@ -24,4 +24,4 @@ private:
 };
 
 
-#endif/*UDP_SERVER_H__*/
+#endif /* UDP_SERVER_H_ */

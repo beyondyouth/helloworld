@@ -1,5 +1,5 @@
-#ifndef MANAGER_THREAD_H__
-#define MANAGER_THREAD_H__
+#ifndef MANAGER_THREAD_H_
+#define MANAGER_THREAD_H_
 
 
 class ManagerThread : public Thread
@@ -14,4 +14,4 @@ private:
 	
 };
 
-#endif /*MONITOR_THREAD_H__*/
+#endif /* MANAGER_THREAD_H_ */

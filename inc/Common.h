@@ -1,5 +1,5 @@
-#ifndef COMMON_H__
-#define COMMON_H__
+#ifndef COMMON_H_
+#define COMMON_H_
 
 enum L_state
 {
@@ -27,4 +27,4 @@ enum G_signal
 	SIGN_EXIT
 };
 
-#endif/*COMMON_H__*/
+#endif /* COMMON_H_ */
