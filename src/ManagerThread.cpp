@@ -15,7 +15,8 @@ ManagerThread::~ManagerThread()
 
 void ManagerThread::run()
 {
-    
-	for(;;);
+    UserThread InsUser;
+	InsUser.start();
+	InsUser.wait();
 }
 

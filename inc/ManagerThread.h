@@ -7,7 +7,7 @@ class ManagerThread : public Thread
 public:
 	ManagerThread();
 	~ManagerThread();
-//	friend void setAdvance();
+
 protected:
 	virtual void run();
 private:

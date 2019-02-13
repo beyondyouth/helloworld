@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 
+#include "Debug.h"
 #include "Thread.h"
 
 
@@ -38,7 +39,7 @@ int Thread::start()
 	{
 		return STATUS_OK;
 	}
-	printf(" Thread Create Fail, errno = %d\n", errno);
+	eprintf(" Thread Create Fail, errno = %d\n", errno);
 	return STATUS_ERROR;
 }
 
@@ -48,7 +49,7 @@ bool Thread::isRunning()
 		return false;
 	if(_isJoining)
 		return true;
-	printf("pthread_kill(---%s\n", _threadName.c_str());
+	dprintf("pthread_kill(---%s\n", _threadName.c_str());
 	/*判断线程是否存在*/
 	int kill_rc = pthread_kill(_threadId, 0);
 	if(ESRCH == kill_rc)
@@ -64,15 +65,15 @@ int Thread::wait()
 		return STATUS_OK;
 	}
 	_isJoining = true;
-//	printf("pthread_join...%s\n", _threadName.c_str());
+//	dprintf("pthread_join...%s\n", _threadName.c_str());
 	if (THREAD_SUCCES ==  pthread_join(_threadId, NULL))
 	{
 		_isJoining = false;
-		printf("pthread_join exited.\n");
+		dprintf("pthread_join exited.\n");
 		return STATUS_OK;
 	}
 	_isJoining = false;
-	printf(" Thread_join failed, errno = %d\n", errno);
+	dprintf(" Thread_join failed, errno = %d\n", errno);
 	return STATUS_ERROR;
 }
 
@@ -86,7 +87,7 @@ int Thread::exit()
 	{
 		return STATUS_OK;
 	}
-	printf(" Thread kill failed, errno = %d\n", errno);
+	eprintf(" Thread kill failed, errno = %d\n", errno);
 	return STATUS_ERROR;
 }
 
@@ -102,7 +103,7 @@ bool Thread::isStoped()
 	else
 	{
 		if (ESRCH != pt)
-			printf(" Thread Check Fail, errno = %d\n",errno);
+			eprintf(" Thread Check Fail, errno = %d\n",errno);
 		return true;
 	}
 }
