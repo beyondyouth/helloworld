@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <pthread.h>
+#include "Debug.h"
 #include "Mutex.h"
 
 #define MUTEX_SUCCESS 0
@@ -11,38 +12,38 @@ Mutex::Mutex()
 	{
 		return ;
 	}
-	printf(" Mutex Init Fail, errno = %d ",errno);
+	eprintf(" Mutex Init Fail, errno = %d ",errno);
 	return;
 }
 
-bool Mutex::lock()
+int Mutex::lock()
 {
 	if (MUTEX_SUCCESS == pthread_mutex_lock(&_mutexId))
 	{
-		return true;
+		return 0;
 	}
-	printf(" Mutex Lock Fail, errno = %d ",errno);
-	return false;
+	eprintf(" Mutex Lock Fail, errno = %d ",errno);
+	return -1;
 }
 
-bool Mutex::trylock()
+int Mutex::trylock()
 {
 	if (MUTEX_SUCCESS == pthread_mutex_trylock(&_mutexId))
 	{
-		return true;
+		return 0;
 	}
-	printf(" Mutex Trylock Fail, errno = %d ",errno);
-	return false;
+	eprintf(" Mutex Trylock Fail, errno = %d ",errno);
+	return -1;
 }
 
-bool Mutex::unlock()
+int Mutex::unlock()
 {
 	if (MUTEX_SUCCESS == pthread_mutex_unlock(&_mutexId))
 	{
-		return true;
+		return 0;
 	}
-	printf(" Mutex Unlock Fail, errno = %d ",errno);
-	return false;
+	eprintf(" Mutex Unlock Fail, errno = %d ",errno);
+	return -1;
 }
 
 pthread_mutex_t Mutex::getId()
@@ -59,7 +60,7 @@ MutexLocker::MutexLocker(Mutex* mutex) : _mutex(NULL)
 {
 	if (!mutex)
 	{
-		printf(" Mutexlocker Creat Fail, errno = %d ",errno);
+		eprintf(" Mutexlocker Creat Fail, errno = %d ",errno);
 		return;
 	}
 	_mutex = mutex;

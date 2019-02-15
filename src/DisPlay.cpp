@@ -6,7 +6,7 @@ DisPlay::DisPlay()
 {
 	initscr();
 	cbreak();/*行缓冲禁止，传递所有控制信息*/
-	keypad(stdscr, TRUE);/*程序需要使用F1功能键*/
+	keypad(stdscr, 0);/*程序需要使用F1功能键*/
 	curs_set(0);
 }
 
@@ -20,7 +20,9 @@ int DisPlay::check_ncurse()
 {
     if(LINES < 20 || COLS < 20)
         return -1;
+	return 0;
 }
+
 WINDOW *DisPlay::create_win(int height,int width,int starty,int startx)
 {
 	WINDOW* local_win;

@@ -1,6 +1,6 @@
+#include <string>
 #include <stdio.h>
 #include <syslog.h>
-#include <string>
 #include <pthread.h>
 #include "Debug.h"
 #include "Thread.h"

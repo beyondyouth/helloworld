@@ -19,7 +19,7 @@ Thread::Thread(const char* name)
 {
 	_threadId = THREADID_NO_INIT;
 	_threadName = name;
-	_isJoining = false;
+	_isJoining = -1;
 }
 
 Thread::~Thread()
@@ -43,19 +43,19 @@ int Thread::start()
 	return STATUS_ERROR;
 }
 
-bool Thread::isRunning()
+int Thread::isRunning()
 {
 	if (THREADID_NO_INIT == _threadId)
-		return false;
+		return -1;
 	if(_isJoining)
-		return true;
+		return 0;
 	dprintf("pthread_kill(---%s\n", _threadName.c_str());
 	/*判断线程是否存在*/
 	int kill_rc = pthread_kill(_threadId, 0);
 	if(ESRCH == kill_rc)
-		return false;
+		return -1;
 	else
-		return true;
+		return 0;
 }
 
 int Thread::wait()
@@ -64,15 +64,15 @@ int Thread::wait()
 	{
 		return STATUS_OK;
 	}
-	_isJoining = true;
+	_isJoining = 0;
 //	dprintf("pthread_join...%s\n", _threadName.c_str());
 	if (THREAD_SUCCES ==  pthread_join(_threadId, NULL))
 	{
-		_isJoining = false;
+		_isJoining = -1;
 		dprintf("pthread_join exited.\n");
 		return STATUS_OK;
 	}
-	_isJoining = false;
+	_isJoining = -1;
 	dprintf(" Thread_join failed, errno = %d\n", errno);
 	return STATUS_ERROR;
 }
@@ -91,20 +91,20 @@ int Thread::exit()
 	return STATUS_ERROR;
 }
 
-bool Thread::isStoped()
+int Thread::isStoped()
 {
 	if (THREADID_NO_INIT == _threadId)
-		return true;
+		return 0;
 	if(_isJoining)
-		return false;
+		return -1;
 	int pt = pthread_kill(_threadId, 0);
 	if (THREAD_SUCCES == pt)
-		return false;
+		return -1;
 	else
 	{
 		if (ESRCH != pt)
 			eprintf(" Thread Check Fail, errno = %d\n",errno);
-		return true;
+		return 0;
 	}
 }
 

@@ -7,9 +7,9 @@ class Mutex
 public:
     Mutex();
     virtual ~Mutex();
-    virtual bool lock();
-    virtual bool trylock();
-    virtual bool unlock();
+    virtual int lock();
+    virtual int trylock();
+    virtual int unlock();
     virtual pthread_mutex_t getId();
 
 private:

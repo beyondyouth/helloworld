@@ -8,15 +8,15 @@ public:
 	UdpServer(void);
 	virtual ~UdpServer(void);
 public:
-	virtual bool init(const char* localIp, uint16_t localPort);
-	virtual bool readData(uint8_t *buf, uint32_t len);
-	virtual bool writeData(const uint8_t *buf, uint32_t len);
-	virtual bool setSocketBlock();
-	virtual bool setSocketNonblock();
-	bool init(uint16_t localPort);
-	bool closeConn();
+	virtual int init(const char* localIp, uint16_t localPort);
+	virtual int readData(char *buf, uint32_t len);
+	virtual int writeData(const char *buf, uint32_t len);
+	virtual int setSocketBlock();
+	virtual int setSocketNonblock();
+	int init(uint16_t localPort);
+	int closeConn();
 	
-	bool acceptConn(uint16_t localPort);
+	int acceptConn(uint16_t localPort);
 	sockaddr_in getClientAddr(void);
 private:
 	struct sockaddr_in _serverAddr;

@@ -1,5 +1,6 @@
-#include <syslog.h>
 #include <string>
+#include <syslog.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <ncurses.h>
@@ -21,8 +22,53 @@ void UserThread::run()
 
     mvprintw(0, 0, "l X:%2d Y:%2d", lx, ly);
     mvprintw(1, 0, "r X:%2d Y:%2d", rx, ry);
+    system(STTY_US TTY_PATH);
     refresh();
 //	mvwprintw(testwin, 1, 1, "r");
 //    InsDisplay.destroy_win(testwin);
-    sleep(5);
+    int key = 0;
+    for(;;) {
+        key = get_char();
+        switch(key) {
+            case KEY_RIGHT:
+            mvprintw(0, 30, "%s", "KEY_RIGHT");
+            break;
+            case KEY_LEFT:
+            mvprintw(0, 30, "%s", "KEY_LEFT");
+            break;
+            case KEY_UP:
+            mvprintw(0, 30, "%s","KEY_UP");
+            break;
+            case KEY_DOWN:
+            mvprintw(0, 30, "%s","KEY_DOWN");
+            break;
+            case 3:
+            system(STTY_DEF TTY_PATH);
+            return;
+            default:
+            mvprintw(0, 30, "Unmached %3d",key);
+            break;
+        }
+        mvprintw(0, 50, "key %3d",key);
+        msleep(50);
+    }
+}
+
+int UserThread::get_char()
+{
+    fd_set rfds;
+    struct timeval tv;
+    int ch = 0;
+
+    FD_ZERO(&rfds);
+    FD_SET(0, &rfds);
+    tv.tv_sec = 0;
+    tv.tv_usec = 20; //设置等待超时时间
+
+    //检测键盘是否有输入
+    if (select(1, &rfds, NULL, NULL, &tv) > 0)
+	{
+        ch = getch();
+    }
+    return ch;
 }

@@ -15,8 +15,8 @@ public:
 	int start();
 	int exit();
 	int wait();
-	bool isStoped();
-	bool isRunning();
+	int isStoped();
+	int isRunning();
 	void msleep(unsigned int timeout);
 
 protected:
@@ -29,7 +29,7 @@ private:
 private:
 	pthread_t _threadId;
 	std::string _threadName;
-	bool _isJoining;
+	int _isJoining;
 };
 
 #endif /* THREAD_H_ */

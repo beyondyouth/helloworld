@@ -1,11 +1,13 @@
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
+#include <syslog.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include "Debug.h"
 #include "Socket.h"
 #include "UdpServer.h"
 
@@ -17,92 +19,92 @@ UdpServer::~UdpServer()
 {
 }
 
-bool UdpServer::init(const char* localIp, uint16_t localPort)
+int UdpServer::init(const char* localIp, uint16_t localPort)
 {
-	return false;
+	return -1;
 }
 
-bool UdpServer::init(uint16_t localPort)
+int UdpServer::init(uint16_t localPort)
 {
 	_localPort = localPort;
 	
 	_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(-1 == _sockfd)
 	{
-		printf("error:%s %d\n",__FILE__, __LINE__);
+		eprintf("error:%s %d\n",__FILE__, __LINE__);
 		return -1;
 	}
 
 	_serverAddr.sin_family = AF_INET;
 	_serverAddr.sin_port = htons(localPort);
 	_serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	bzero(&(_serverAddr.sin_zero), 8);
+	memset(&(_serverAddr.sin_zero), 0, 8);
 	
 	_clientAddr.sin_family = AF_INET;  
     _clientAddr.sin_addr.s_addr = htonl(INADDR_ANY);  
     _clientAddr.sin_port = htons(localPort);
-	bzero(&(_clientAddr.sin_zero), 8);
+	memset(&(_clientAddr.sin_zero), 0, 8);
 	
 	const int opt = 1;
 	if(-1 == setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)))
     {
         close(_sockfd);
-		printf("error:%s %d\n",__FILE__, __LINE__);
-		return false; 
+		eprintf("error:%s %d\n",__FILE__, __LINE__);
+		return -1; 
     }
 	if(-1 == bind(_sockfd,(struct sockaddr *)&_serverAddr,sizeof(_serverAddr)))
 	{
 		close(_sockfd);
-		printf("error:%s %d\n",__FILE__, __LINE__);
-		return false;
+		eprintf("error:%s %d\n",__FILE__, __LINE__);
+		return -1;
 	}
-	return true;
+	return 0;
 }
 
-bool UdpServer::setSocketBlock()
+int UdpServer::setSocketBlock()
 {
 	fcntl(_sockfd, F_SETFL, fcntl(_sockfd, F_GETFL) & ~O_NONBLOCK);
 	fcntl(_sockfd, F_SETFD, FD_CLOEXEC);
-	return true;
+	return 0;
 }
 
-bool UdpServer::setSocketNonblock()
+int UdpServer::setSocketNonblock()
 {
 	fcntl(_sockfd, F_SETFL, fcntl(_sockfd, F_GETFL) | O_NONBLOCK);
-	return true;
+	return 0;
 }
 
-bool UdpServer::readData(uint8_t *buf,uint32_t len)
+int UdpServer::readData(char *buf,uint32_t len)
 {
 	if(len > MAXDATASIZE)
 		len = MAXDATASIZE;
 	int nlen = sizeof(sockaddr_in);
 	if(-1 == recvfrom(_sockfd, buf, len, 0, (sockaddr*)&_clientAddr, (socklen_t*)&nlen))
 	{
-		printf("error:%s %d\n",__FILE__, __LINE__);
-		return false;
+		eprintf("error:%s %d\n",__FILE__, __LINE__);
+		return -1;
 	}
-	return true;
+	return 0;
 }
 
-bool UdpServer::writeData(const uint8_t *buf,uint32_t len)
+int UdpServer::writeData(const char *buf,uint32_t len)
 {
 	if(len > MAXDATASIZE)
 		len = MAXDATASIZE;
 	if(-1 == sendto(_sockfd, buf, len, 0, (sockaddr*)&_clientAddr, sizeof(sockaddr_in)))
 	{
-		printf("error:%s %d\n", __FILE__, __LINE__);
-		return false;
+		eprintf("error:%s %d\n", __FILE__, __LINE__);
+		return -1;
 	}
-	return true;
+	return 0;
 }
 
-bool UdpServer::closeConn()
+int UdpServer::closeConn()
 {
 	shutdown(_sockfd, SHUT_RDWR);
 	close(_sockfd);
 	_sockfd = -1;
-	return true;
+	return 0;
 }
 
 sockaddr_in UdpServer::getClientAddr()
