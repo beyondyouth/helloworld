@@ -6,6 +6,7 @@
 #include "Thread.h"
 #include "ManagerThread.h"
 
+
 int main()
 {
 	ManagerThread InsManager;
