@@ -6,7 +6,8 @@ class SendThread : public Thread
 {
 public:
 	SendThread();
-
+	~SendThread();
+	Queue *pSendQueue = NULL;
 protected:
 	virtual void run();
 	
@@ -15,7 +16,5 @@ private:
 	uint32_t _buflen;
 };
 
-int pushTxQueue(char* buf, uint32_t len, uint32_t offset = 0);
-int pullTxQueue(char* buf, uint32_t len, uint32_t offset = 0);
 
 #endif /* SEND_THREAD_H_ */

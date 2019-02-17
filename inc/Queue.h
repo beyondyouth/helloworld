@@ -2,9 +2,6 @@
 #define QUEUE_H_
 
 
-#define QUEUE_DEFAULT_CAPACITY 256
-#define QUEUE_DEFAULT_ITEM_LEN 1
-
 typedef struct{
     Mutex               *tableMutex;        // 表锁 
     uint32_t            item_len;          // 元素的固定长度 
@@ -22,7 +19,7 @@ typedef struct{
 class Queue
 {
 public:
-    Queue(uint32_t capacity = QUEUE_DEFAULT_CAPACITY, uint32_t item_len = QUEUE_DEFAULT_ITEM_LEN);
+    Queue(uint32_t capacity, uint32_t item_len);
     ~Queue();
     // 获取队列统计情况
     void            Queue_Statistics(uint32_t *capacity, uint32_t *count, uint32_t *overflow_cnt);

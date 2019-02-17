@@ -76,8 +76,10 @@ int UdpServer::setSocketNonblock()
 
 int UdpServer::readData(char *buf,uint32_t len)
 {
-	if(len > MAXDATASIZE)
-		len = MAXDATASIZE;
+	if(len > MAXITEMLENSIZE)
+	{
+		len = MAXITEMLENSIZE;
+	}
 	int nlen = sizeof(sockaddr_in);
 	if(-1 == recvfrom(_sockfd, buf, len, 0, (sockaddr*)&_clientAddr, (socklen_t*)&nlen))
 	{
@@ -89,8 +91,10 @@ int UdpServer::readData(char *buf,uint32_t len)
 
 int UdpServer::writeData(const char *buf,uint32_t len)
 {
-	if(len > MAXDATASIZE)
-		len = MAXDATASIZE;
+	if(len > MAXITEMLENSIZE)
+	{
+		len = MAXITEMLENSIZE;
+	}
 	if(-1 == sendto(_sockfd, buf, len, 0, (sockaddr*)&_clientAddr, sizeof(sockaddr_in)))
 	{
 		eprintf("error:%s %d\n", __FILE__, __LINE__);

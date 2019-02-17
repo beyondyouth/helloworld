@@ -9,67 +9,46 @@
 #include "Socket.h"
 #include "Thread.h"
 #include "Mutex.h"
+#include "Queue.h"
 #include "UdpClient.h"
 #include "SendThread.h"
 
 
-static char _sendBuf[MAXDATASIZE] = {0};
-static Mutex* pSendMux = new Mutex();
-
 Socket* pUdpSock = NULL;
 
-int pushTxQueue(char* buf, uint32_t len, uint32_t offset)
-{
-	pSendMux->lock();
-	if(offset + len > MAXDATASIZE)
-	{
-		pSendMux->unlock();
-		return -1;
-	}
-	
-	memcpy(_sendBuf + offset, buf, len);
-	pSendMux->unlock();
-	return 0;
-}
-
-
-int pullTxQueue(char* buf, uint32_t len, uint32_t offset)
-{
-	pSendMux->lock();
-	if(offset + len > MAXDATASIZE)
-	{
-		pSendMux->unlock();
-		return -1;
-	}
-	
-	memcpy(buf, _sendBuf + offset, len);
-	pSendMux->unlock();
-	return 0;
-}
 
 SendThread::SendThread()
 {
 	_pSock = pUdpSock;
-	_buflen = MAXDATASIZE;
+	_buflen = MAXITEMLENSIZE;
+	pSendQueue = new Queue(MAXQUEUELENGTH, MAXITEMLENSIZE);
+}
+
+SendThread::~SendThread()
+{
+	if(NULL != pSendQueue)
+	{
+		delete(pSendQueue);
+	}
 }
 
 void SendThread::run()
 {
-	char tempBuf[MAXDATASIZE] = {0};
+	char tempBuf[MAXITEMLENSIZE] = {0};
 
 	UdpClient* pInsUdp = new UdpClient();
 	pUdpSock = (Socket*)pInsUdp;
 
 	//while(GAME_EXIT != getGameState())
 	{
-		if(0 != _sendBuf[0])
+		if(0 != pSendQueue->Queue_Count())
 		{
-			pullTxQueue(tempBuf, MAXDATASIZE);
+			pSendQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
 			if(-1 == _pSock->writeData(tempBuf, _buflen))
 			{
 				eprintf("error:%s %d",__FILE__, __LINE__);
 			}
-			bzero(tempBuf, MAXDATASIZE);
+			memset(tempBuf, 0, MAXITEMLENSIZE);
 		}
 		msleep(50);
 	}

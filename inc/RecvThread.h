@@ -6,7 +6,8 @@ class RecvThread : public Thread
 {
 public:
 	RecvThread();
-	
+	~RecvThread();
+	Queue *pRecvQueue = NULL;
 protected:
 	virtual void run();
 	
@@ -15,7 +16,5 @@ private:
 	uint32_t _buflen;
 };
 
-int pushRxQueue(char* buf, uint32_t len, uint32_t offset = 0);
-int pullRxQueue(char* buf, uint32_t len, uint32_t offset = 0);
 
 #endif /* RECV_THREAD_H_ */

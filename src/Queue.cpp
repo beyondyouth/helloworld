@@ -173,7 +173,7 @@ int Queue::Queue_Put(const void *val, uint32_t vlen)
 
 void Queue::Queue_Statistics(uint32_t *capacity, uint32_t *count, uint32_t *overflow_cnt)
 {
-    printf("\n=============hash table statistics===============\n");
+    printf("\n=============queue statistics===============\n");
 
     *capacity       = Queue_Capacity();
     *count          = Queue_Count();
@@ -182,7 +182,7 @@ void Queue::Queue_Statistics(uint32_t *capacity, uint32_t *count, uint32_t *over
     printf("capacity=%d count=%d overflow_cnt=%d", 
         *capacity, *count, *overflow_cnt);
 
-    printf("\n=============hash statistics end===============\n");
+    printf("\n=============queue statistics end===============\n");
 }
 
 uint32_t Queue::Queue_Capacity(void)

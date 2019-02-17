@@ -80,8 +80,10 @@ int UdpClient::disConn()
 
 int UdpClient::readData(char *buf,uint32_t len)
 {
-	if(len > MAXDATASIZE)
-		len = MAXDATASIZE;
+	if(len > MAXITEMLENSIZE)
+	{
+		len = MAXITEMLENSIZE;
+	}
 	int nlen = sizeof(_serverAddr);
 	if(-1 == recvfrom(_sockfd, buf, len, 0, (sockaddr*)&_serverAddr, (socklen_t*)&nlen))
 	{
@@ -93,8 +95,10 @@ int UdpClient::readData(char *buf,uint32_t len)
 
 int UdpClient::writeData(const char *buf, uint32_t len)
 {
-	if(len > MAXDATASIZE)
-		len = MAXDATASIZE;
+	if(len > MAXITEMLENSIZE)
+	{
+		len = MAXITEMLENSIZE;
+	}
 	int nlen = sizeof(_serverAddr);
 	if(-1 == sendto(_sockfd, buf, len, 0, (sockaddr*)&_serverAddr, nlen))
 	{

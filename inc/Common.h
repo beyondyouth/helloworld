@@ -1,30 +1,25 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-enum L_state
+typedef enum
 {
-	LINK_FAILED,
-	LINK_ACCEPT,
-	LINK_CONNECT,
+	LINK_START,
 	LINK_SUCCESS,
-	LINK_ABORT
-};
+	LINK_ABORT,
+	LINK_FAILED
+}L_state;
 
-enum G_state
+typedef enum
 {
 	GAME_START,
 	GAME_SELECT,
-	GAME_LINK,
 	GAME_FIGHT,
 	GAME_OVER,
 	GAME_EXIT
-};
+}G_state;
 
-enum G_signal
-{
-	SIGN_NO,
-	SIGN_PAUSE,
-	SIGN_EXIT
-};
+
+extern L_state _link_state;
+extern G_state _game_state;
 
 #endif /* COMMON_H_ */

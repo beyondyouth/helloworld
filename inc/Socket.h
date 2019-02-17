@@ -2,7 +2,8 @@
 #define SOCKET_H_
 
 
-#define MAXDATASIZE 256
+#define MAXITEMLENSIZE 256
+#define MAXQUEUELENGTH 1024
 
 class Socket
 {
