@@ -17,7 +17,7 @@ static Mutex* pRecvMux = new Mutex();
 extern Socket* pUdpSock;
 //extern void setLinkState(L_state s);
 
-int pullRxQuene(char* buf, uint32_t len, uint32_t offset)
+int pullRxQueue(char* buf, uint32_t len, uint32_t offset)
 {
 	pRecvMux->lock();
 	if(offset + len > MAXDATASIZE)
@@ -30,7 +30,7 @@ int pullRxQuene(char* buf, uint32_t len, uint32_t offset)
 	return 0;
 }
 
-int pushRxQuene(char* buf, uint32_t len, uint32_t offset)
+int pushRxQueue(char* buf, uint32_t len, uint32_t offset)
 {
 	pRecvMux->lock();
 	if(offset + len > MAXDATASIZE)
@@ -61,7 +61,7 @@ void RecvThread::run()
 		}
 		if(0 != tempBuf[0])
 		{
-			pushRxQuene(tempBuf, MAXDATASIZE);
+			pushRxQueue(tempBuf, MAXDATASIZE);
 			bzero(tempBuf, MAXDATASIZE);
 		}
 		else

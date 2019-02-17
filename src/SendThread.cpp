@@ -18,7 +18,7 @@ static Mutex* pSendMux = new Mutex();
 
 Socket* pUdpSock = NULL;
 
-int pushTxQuene(char* buf, uint32_t len, uint32_t offset)
+int pushTxQueue(char* buf, uint32_t len, uint32_t offset)
 {
 	pSendMux->lock();
 	if(offset + len > MAXDATASIZE)
@@ -33,7 +33,7 @@ int pushTxQuene(char* buf, uint32_t len, uint32_t offset)
 }
 
 
-int pullTxQuene(char* buf, uint32_t len, uint32_t offset)
+int pullTxQueue(char* buf, uint32_t len, uint32_t offset)
 {
 	pSendMux->lock();
 	if(offset + len > MAXDATASIZE)
@@ -64,7 +64,7 @@ void SendThread::run()
 	{
 		if(0 != _sendBuf[0])
 		{
-			pullTxQuene(tempBuf, MAXDATASIZE);
+			pullTxQueue(tempBuf, MAXDATASIZE);
 			if(-1 == _pSock->writeData(tempBuf, _buflen))
 			{
 				eprintf("error:%s %d",__FILE__, __LINE__);

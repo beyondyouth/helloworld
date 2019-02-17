@@ -15,7 +15,7 @@ private:
 	uint32_t _buflen;
 };
 
-int pushTxQuene(char* buf, uint32_t len, uint32_t offset = 0);
-int pullTxQuene(char* buf, uint32_t len, uint32_t offset = 0);
+int pushTxQueue(char* buf, uint32_t len, uint32_t offset = 0);
+int pullTxQueue(char* buf, uint32_t len, uint32_t offset = 0);
 
 #endif /* SEND_THREAD_H_ */

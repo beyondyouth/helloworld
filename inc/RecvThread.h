@@ -15,7 +15,7 @@ private:
 	uint32_t _buflen;
 };
 
-int pushRxQuene(char* buf, uint32_t len, uint32_t offset = 0);
-int pullRxQuene(char* buf, uint32_t len, uint32_t offset = 0);
+int pushRxQueue(char* buf, uint32_t len, uint32_t offset = 0);
+int pullRxQueue(char* buf, uint32_t len, uint32_t offset = 0);
 
 #endif /* RECV_THREAD_H_ */
