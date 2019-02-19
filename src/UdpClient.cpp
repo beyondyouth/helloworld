@@ -4,6 +4,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -20,35 +21,37 @@ UdpClient::~UdpClient()
 {
 }
 
-
+#if 0
 int UdpClient::init(const char* localIp, uint16_t localPort)
 {
 	return -1;
 }
-
-int UdpClient::init(uint16_t servPort)
+#endif
+int UdpClient::init(uint16_t serverPort)
 {
-	memset(_localIp, 0, sizeof(_localIp));
-	_localPort = 0;
-	
-	_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	_serverPort = serverPort;
+	_sockfd = socket(AF_INET, SOCK_DGRAM, 0); /*IPv4协议 数据报socket*/
 	if (-1 == _sockfd)
 	{
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
 		return -1;
 	}
-	
-	const int opt = 1;
-	if(-1 == setsockopt(_sockfd, SOL_SOCKET, SO_BROADCAST, (char *)&opt, sizeof(opt)))
+#if 0
+	_clientAddr.sin_family = AF_INET;
+	_clientAddr.sin_port = htons(5555);
+	_clientAddr.sin_addr.s_addr = inet_addr("10.0.2.15");
+ 
+	if(-1 == bind(_sockfd,(struct sockaddr *)&_clientAddr,sizeof(_clientAddr)))
 	{
+		close(_sockfd);
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
 		return -1;
 	}
-
+#endif
 	_serverAddr.sin_family = AF_INET;
-	_serverAddr.sin_port = htons(servPort);
-	_serverAddr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
-	memset(&(_serverAddr.sin_zero), 0, 8);
+	_serverAddr.sin_port = htons(_serverPort);
+	_serverAddr.sin_addr.s_addr = inet_addr("10.10.2.20");
+	//memset(&(_serverAddr.sin_zero), 0, 8);
 
 	return 0;
 }
@@ -68,7 +71,7 @@ int UdpClient::setSocketNonblock()
 }
 
 
-int UdpClient::disConn()
+int UdpClient::exit()
 {
 	//dprintf("Sockfd = %d,connecte status= %d, now disconnect socket....\n",_sockfd,_bConnected);
 	shutdown(_sockfd, SHUT_RDWR);
@@ -78,7 +81,7 @@ int UdpClient::disConn()
 	return 0;
 }
 
-int UdpClient::readData(char *buf,uint32_t len)
+int UdpClient::recvData(char *buf,uint32_t len)
 {
 	if(len > MAXITEMLENSIZE)
 	{
@@ -93,7 +96,7 @@ int UdpClient::readData(char *buf,uint32_t len)
 	return 0;
 }
 
-int UdpClient::writeData(const char *buf, uint32_t len)
+int UdpClient::sendData(const char *buf, uint32_t len)
 {
 	if(len > MAXITEMLENSIZE)
 	{
@@ -103,12 +106,13 @@ int UdpClient::writeData(const char *buf, uint32_t len)
 	if(-1 == sendto(_sockfd, buf, len, 0, (sockaddr*)&_serverAddr, nlen))
 	{
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
+		eprintf("errno:%d\n", errno);
 		return -1;
 	}
 	return 0;
 }
 
-int UdpClient::sendto2(const char* serverIp, uint16_t serverPort, const uint8_t* buf, uint32_t len)
+int UdpClient::sendBroadcast(uint16_t serverPort, const char* buf, uint32_t len)
 {
 	struct sockaddr_in serverAddr;
 	int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -122,19 +126,19 @@ int UdpClient::sendto2(const char* serverIp, uint16_t serverPort, const uint8_t*
 	if(-1 == setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, (char *)&opt, sizeof(opt)))
 	{
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
-		//return -1;
+		eprintf("errno:%d\n", errno);
+		return -1;
 	}
 
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(serverPort);
-	serverAddr.sin_addr.s_addr = inet_addr(serverIp);
+	serverAddr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
 	memset(&(serverAddr.sin_zero), 0, 8);
 
 	int nlen = sizeof(serverAddr);
 	if(-1 == sendto(sockfd, buf, len, 0, (sockaddr*)&serverAddr, nlen))
 	{
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
-		//return -1;
 	}
 	shutdown(sockfd, SHUT_RDWR);
 	close(sockfd);

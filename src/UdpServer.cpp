@@ -19,16 +19,11 @@ UdpServer::~UdpServer()
 {
 }
 
-int UdpServer::init(const char* localIp, uint16_t localPort)
+int UdpServer::init(uint16_t serverPort)
 {
-	return -1;
-}
-
-int UdpServer::init(uint16_t localPort)
-{
-	_localPort = localPort;
-	
+	_serverPort = serverPort;
 	_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
 	if(-1 == _sockfd)
 	{
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
@@ -36,28 +31,25 @@ int UdpServer::init(uint16_t localPort)
 	}
 
 	_serverAddr.sin_family = AF_INET;
-	_serverAddr.sin_port = htons(localPort);
+	_serverAddr.sin_port = htons(_serverPort);
 	_serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	memset(&(_serverAddr.sin_zero), 0, 8);
-	
-	_clientAddr.sin_family = AF_INET;  
-    _clientAddr.sin_addr.s_addr = htonl(INADDR_ANY);  
-    _clientAddr.sin_port = htons(localPort);
-	memset(&(_clientAddr.sin_zero), 0, 8);
-	
-	const int opt = 1;
-	if(-1 == setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)))
+
+	int opt = 1;
+	if(-1 == setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt))) /*set reuse socket*/
     {
         close(_sockfd);
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
 		return -1; 
     }
+
 	if(-1 == bind(_sockfd,(struct sockaddr *)&_serverAddr,sizeof(_serverAddr)))
 	{
 		close(_sockfd);
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -74,7 +66,7 @@ int UdpServer::setSocketNonblock()
 	return 0;
 }
 
-int UdpServer::readData(char *buf,uint32_t len)
+int UdpServer::recvData(char *buf,uint32_t len)
 {
 	if(len > MAXITEMLENSIZE)
 	{
@@ -89,7 +81,7 @@ int UdpServer::readData(char *buf,uint32_t len)
 	return 0;
 }
 
-int UdpServer::writeData(const char *buf,uint32_t len)
+int UdpServer::sendData(const char *buf,uint32_t len)
 {
 	if(len > MAXITEMLENSIZE)
 	{
@@ -103,7 +95,7 @@ int UdpServer::writeData(const char *buf,uint32_t len)
 	return 0;
 }
 
-int UdpServer::closeConn()
+int UdpServer::exit()
 {
 	shutdown(_sockfd, SHUT_RDWR);
 	close(_sockfd);

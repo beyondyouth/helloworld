@@ -8,15 +8,13 @@ public:
 	UdpServer(void);
 	virtual ~UdpServer(void);
 public:
-	virtual int init(const char* localIp, uint16_t localPort);
-	virtual int readData(char *buf, uint32_t len);
-	virtual int writeData(const char *buf, uint32_t len);
-	virtual int setSocketBlock();
-	virtual int setSocketNonblock();
-	int init(uint16_t localPort);
-	int closeConn();
+	virtual int init(uint16_t serverPort);
+	virtual int recvData(char *buf, uint32_t len);
+	virtual int sendData(const char *buf, uint32_t len);
+	virtual int setSocketBlock(void);
+	virtual int setSocketNonblock(void);
+	virtual int exit(void);
 	
-	int acceptConn(uint16_t localPort);
 	sockaddr_in getClientAddr(void);
 private:
 	struct sockaddr_in _serverAddr;

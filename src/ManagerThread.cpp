@@ -28,16 +28,16 @@ ManagerThread::~ManagerThread()
 void ManagerThread::run()
 {
 	_game_state = GAME_START;
-	RecvThread InsRecv;
+	//RecvThread InsRecv;
 	SendThread InsSend;
-    UserThread InsUser;
+//    UserThread InsUser;
 
-	InsRecv.start();
+	//InsRecv.start();
 	InsSend.start();
-	InsUser.start();
+//	InsUser.start();
 
-	InsUser.wait();
+//	InsUser.wait();
 	InsSend.wait();
-	InsRecv.wait();
+	//InsRecv.wait();
 }
 

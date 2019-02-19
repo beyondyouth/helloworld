@@ -8,14 +8,13 @@ public:
 	UdpClient(void);
 	virtual ~UdpClient(void);
 public:
-	virtual int init(const char* localIp, uint16_t localPort);
-	virtual int readData(char *buf,uint32_t len);
-	virtual int writeData(const char *buf,uint32_t len);
+	virtual int init(uint16_t servPort);
+	virtual int recvData(char *buf,uint32_t len);
+	virtual int sendData(const char *buf,uint32_t len);
 	virtual int setSocketBlock(void);
 	virtual int setSocketNonblock(void);
-	int init(uint16_t servPort);
-	int disConn(void);
-	int sendto2(const char* serverIp, uint16_t serverPort, const uint8_t* buf, uint32_t len);
+	virtual int exit(void);
+	int sendBroadcast(uint16_t serverPort, const char* buf, uint32_t len);
 private:
 
 };

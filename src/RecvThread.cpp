@@ -11,17 +11,19 @@
 #include "Mutex.h"
 #include "Queue.h"
 #include "Common.h"
+#include "UdpServer.h"
 #include "RecvThread.h"
 
-extern Socket* pUdpSock;
+
 //extern void setLinkState(L_state s);
 
 
 RecvThread::RecvThread()
 {
-	_pSock = pUdpSock;
 	_buflen = MAXITEMLENSIZE;
 	pRecvQueue = new Queue(MAXQUEUELENGTH, MAXITEMLENSIZE);
+	UdpServer* pInsUdp = new UdpServer();
+	_pSock = (Socket*)pInsUdp;
 }
 
 RecvThread::~RecvThread()
@@ -35,18 +37,29 @@ RecvThread::~RecvThread()
 void RecvThread::run()
 {
 	char tempBuf[MAXITEMLENSIZE] = {0};
+	_pSock->init(6789);
+	_pSock->setSocketBlock();
+
+	while(1) {
+		_pSock->recvData(tempBuf, 6);
+		if(tempBuf[0] > 0)
+			printf("recv:%s\n", tempBuf);
+		memset(tempBuf, 0, 6);
+		msleep(50);
+	}
+#if 0
 	while(GAME_EXIT != _game_state)
 	{
-		if(-1 == _pSock->readData(tempBuf, _buflen))
+		if(-1 == _pSock->recvData(tempBuf, _buflen))
 		{
 			eprintf("error:%s %d",__FILE__, __LINE__);
 			_link_state = LINK_ABORT;
+			continue;
 		}
-		if(0 != pRecvQueue->Queue_Count())
-		{
-			pRecvQueue->Queue_Put(tempBuf, MAXITEMLENSIZE);
-			memset(tempBuf, 0, MAXITEMLENSIZE);
-		}
+		pRecvQueue->Queue_Put(tempBuf, MAXITEMLENSIZE);
+		memset(tempBuf, 0, MAXITEMLENSIZE);
+
 		msleep(50);
 	}
+#endif
 }
