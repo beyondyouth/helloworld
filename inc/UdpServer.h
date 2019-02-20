@@ -16,6 +16,7 @@ public:
 	virtual int exit(void);
 	
 	sockaddr_in getClientAddr(void);
+	int check_ip(void);
 private:
 	struct sockaddr_in _serverAddr;
 	struct sockaddr_in _clientAddr;

@@ -1,206 +1,0 @@
-
-src/Queue.cpp,429
-void Queue_TestSelf(9,119
-Queue::Queue(48,918
-Queue::~Queue(53,1016
-uint32_t Queue::Queue_GetSize(66,1151
-Queue_t * Queue::Queue_Make(74,1346
-void Queue::Queue_Lock(93,1711
-void Queue::Queue_Unlock(98,1774
-void* Queue::Queue_Get(105,1877
-int Queue::Queue_Put(139,2476
-void Queue::Queue_Statistics(174,3088
-uint32_t Queue::Queue_Capacity(188,3533
-uint32_t Queue::Queue_Count(193,3603
-void Queue::Queue_Clear(198,3704
-
-src/UserThread.cpp,143
-uint32_t lx 13,224
-uint32_t ly 14,257
-uint32_t rx 15,290
-uint32_t ry 16,324
-void UserThread::run(18,359
-int UserThread::get_char(57,1345
-
-src/UdpServer.cpp,310
-UdpServer::UdpServer(14,252
-UdpServer::~UdpServer(18,280
-int UdpServer::init(22,309
-int UdpServer::setSocketBlock(56,1078
-int UdpServer::setSocketNonblock(63,1229
-int UdpServer::recvData(69,1344
-int UdpServer::sendData(84,1649
-int UdpServer::exit(98,1928
-sockaddr_in UdpServer::getClientAddr(106,2029
-
-src/DisPlay.cpp,211
-DisPlay::DisPlay(5,62
-DisPlay::~DisPlay(13,222
-int DisPlay::check_ncurse(19,273
-WINDOW *DisPlay::create_win(DisPlay::create_win26,368
-void DisPlay::destroy_win(35,655
-void DisPlay::create_fightwin(42,800
-
-src/UdpClient.cpp,328
-UdpClient::UdpClient(16,272
-UdpClient::~UdpClient(20,300
-int UdpClient::init(25,335
-int UdpClient::init(30,419
-int UdpClient::setSocketBlock(49,841
-int UdpClient::setSocketNonblock(56,992
-int UdpClient::exit(63,1108
-int UdpClient::recvData(73,1306
-int UdpClient::sendData(88,1611
-int UdpClient::sendBroadcast(104,1940
-
-src/RecvThread.cpp,92
-RecvThread::RecvThread(21,355
-RecvThread::~RecvThread(29,536
-void RecvThread::run(37,619
-
-src/Mutex.cpp,252
-#define MUTEX_SUCCESS 7,98
-Mutex::Mutex(9,123
-int Mutex::lock(19,277
-int Mutex::trylock(29,432
-int Mutex::unlock(39,596
-pthread_mutex_t Mutex::getId(49,757
-Mutex::~Mutex(54,811
-MutexLocker::MutexLocker(59,867
-MutexLocker::~MutexLocker(70,1046
-
-src/Main.cpp,17
-int main(10,155
-
-src/SendThread.cpp,92
-SendThread::SendThread(18,314
-SendThread::~SendThread(26,495
-void SendThread::run(34,578
-
-src/ManagerThread.cpp,163
-L_state _link_state 17,328
-G_state _game_state 18,363
-ManagerThread::ManagerThread(20,397
-ManagerThread::~ManagerThread(24,433
-void ManagerThread::run(28,470
-
-src/Thread.cpp,386
-#define THREAD_SUCCES 15,195
-#define THREADID_NO_INIT 16,220
-Thread::Thread(18,250
-Thread::~Thread(25,365
-const char* Thread::getThreadName(29,392
-int Thread::start(34,473
-int Thread::isRunning(46,743
-int Thread::wait(61,1045
-int Thread::exit(80,1453
-int Thread::isStoped(94,1712
-void Thread::msleep(111,2008
-void* Thread::entryPoint(116,2085
-void Thread::destory(124,2223
-
-inc/Mutex.h,160
-#define MUTEX_H_2,17
-class Mutex5,36
-    pthread_mutex_t _mutexId;Mutex::_mutexId16,217
-class MutexLocker19,251
-	Mutex* _mutex;MutexLocker::_mutex26,336
-
-inc/Queue.h,456
-#define QUEUE_H_2,17
-    Mutex               *tableMutex;tableMutex6,52
-    uint32_t            item_len;7,107
-    uint32_t            count;9,181
-    uint32_t            capacity;10,241
-    uint32_t            overflow_cnt;11,301
-    uint32_t            front;13,424
-    uint32_t            rear;14,498
-    uint8_t             data_array[data_array16,597
-}Queue_t;Queue_t17,706
-class Queue19,717
-    Queue_t         *_ht Queue::_ht38,1426
-
-inc/ManagerThread.h,96
-#define MANAGER_THREAD_H_2,26
-class ManagerThread 5,54
-private:ManagerThread::private13,170
-
-inc/Thread.h,235
-#define THREAD_H_2,19
-#define STATUS_OK 5,42
-#define STATUS_ERROR 6,63
-class Thread8,90
-	pthread_t _threadId;Thread::_threadId30,466
-	std::string _threadName;Thread::_threadName31,489
-	int _isJoining;Thread::_isJoining32,516
-
-inc/UdpServer.h,175
-#define UDP_SERVER_H_2,22
-class UdpServer 5,46
-	struct sockaddr_in _serverAddr;UdpServer::_serverAddr20,426
-	struct sockaddr_in _clientAddr;UdpServer::_clientAddr21,459
-
-inc/UserThread.h,119
-#define USER_THREAD_2,21
-#define TTY_PATH 4,43
-#define STTY_US 5,82
-#define STTY_DEF 6,131
-class UserThread 8,181
-
-inc/UdpClient.h,84
-#define UDP_CLIENT_H_2,22
-class UdpClient 5,46
-private:UdpClient::private18,449
-
-inc/RecvThread.h,190
-#define RECV_THREAD_H_2,23
-class RecvThread 5,48
-	Queue *pRecvQueue RecvThread::pRecvQueue10,122
-	Socket* _pSock;RecvThread::_pSock15,192
-	uint32_t _buflen;RecvThread::_buflen16,209
-
-inc/Common.h,245
-#define COMMON_H_2,18
-	LINK_START,6,52
-	LINK_SUCCESS,7,65
-	LINK_ABORT,8,80
-	LINK_FAILED9,93
-}L_state;L_state10,106
-	GAME_START,14,132
-	GAME_SELECT,15,145
-	GAME_FIGHT,16,159
-	GAME_OVER,17,172
-	GAME_EXIT18,184
-}G_state;G_state19,195
-
-inc/SendThread.h,190
-#define SEND_THREAD_H_2,23
-class SendThread 5,48
-	Queue *pSendQueue SendThread::pSendQueue10,122
-	Socket* _pSock;SendThread::_pSock15,192
-	uint32_t _buflen;SendThread::_buflen16,209
-
-inc/Debug.h,158
-#define DEBUG_H_2,17
-#define DBG4,35
-#define NVM_PREFIX	7,59
-#define eprintf(9,90
-#define dprintf(14,213
-#define eprintf(20,340
-#define dprintf(24,465
-
-inc/Socket.h,349
-#define SOCKET_H_2,19
-#define MAXITEMLENSIZE 5,42
-#define MAXQUEUELENGTH 6,70
-class Socket8,101
-	int _sockfd;Socket::_sockfd18,412
-	char _serverIp[Socket::_serverIp20,429
-	uint16_t _serverPort;Socket::_serverPort21,451
-	struct sockaddr_in _clientAddr;Socket::_clientAddr23,478
-	struct sockaddr_in _serverAddr;Socket::_serverAddr24,512
-
-inc/DisPlay.h,90
-#define DISPLAY_H_2,19
-class DisPlay4,39
-    WINDOW *fightwin;DisPlay::fightwin15,265

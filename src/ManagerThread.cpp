@@ -9,8 +9,8 @@
 #include "Socket.h"
 #include "Queue.h"
 #include "Common.h"
-#include "RecvThread.h"
-#include "SendThread.h"
+#include "ServerThread.h"
+#include "ClientThread.h"
 #include "UserThread.h"
 #include "ManagerThread.h"
 
@@ -28,16 +28,16 @@ ManagerThread::~ManagerThread()
 void ManagerThread::run()
 {
 	_game_state = GAME_START;
-	//RecvThread InsRecv;
-	SendThread InsSend;
+	ServerThread InsServer;
+	ClientThread InsClient;
 //    UserThread InsUser;
 
-	//InsRecv.start();
-	InsSend.start();
+	InsServer.start();
+	InsClient.start();
 //	InsUser.start();
 
 //	InsUser.wait();
-	InsSend.wait();
-	//InsRecv.wait();
+	InsClient.wait();
+	InsServer.wait();
 }
 

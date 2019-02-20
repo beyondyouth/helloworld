@@ -4,7 +4,6 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -50,7 +49,7 @@ int UdpClient::init(uint16_t serverPort)
 #endif
 	_serverAddr.sin_family = AF_INET;
 	_serverAddr.sin_port = htons(_serverPort);
-	_serverAddr.sin_addr.s_addr = inet_addr("10.10.2.20");
+	_serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	//memset(&(_serverAddr.sin_zero), 0, 8);
 
 	return 0;
@@ -106,7 +105,6 @@ int UdpClient::sendData(const char *buf, uint32_t len)
 	if(-1 == sendto(_sockfd, buf, len, 0, (sockaddr*)&_serverAddr, nlen))
 	{
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
-		eprintf("errno:%d\n", errno);
 		return -1;
 	}
 	return 0;
@@ -126,7 +124,6 @@ int UdpClient::sendBroadcast(uint16_t serverPort, const char* buf, uint32_t len)
 	if(-1 == setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, (char *)&opt, sizeof(opt)))
 	{
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
-		eprintf("errno:%d\n", errno);
 		return -1;
 	}
 

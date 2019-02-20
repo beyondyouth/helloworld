@@ -4,6 +4,8 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -78,6 +80,11 @@ int UdpServer::recvData(char *buf,uint32_t len)
 		eprintf("error:%s %d\n",__FILE__, __LINE__);
 		return -1;
 	}
+	if(check_ip())
+	{
+		//eprintf("my packet\n");
+		return -1;
+	}
 	return 0;
 }
 
@@ -106,4 +113,37 @@ int UdpServer::exit()
 sockaddr_in UdpServer::getClientAddr()
 {
 	return _clientAddr;
+}
+
+int UdpServer::check_ip()
+{
+
+	int intrface;
+
+	struct ifreq buf[INET_ADDRSTRLEN];
+	struct ifconf ifc;
+
+	ifc.ifc_len = sizeof(buf);
+	ifc.ifc_buf = (caddr_t)buf;
+
+	if(ioctl(_sockfd, SIOCGIFCONF, (char *)&ifc))
+	{
+		return 0;
+	}
+
+	intrface = ifc.ifc_len/sizeof(struct ifreq);
+	while (intrface-- > 0)
+	{
+		if (!(ioctl(_sockfd, SIOCGIFADDR, (char *)&buf[intrface])))
+		{
+			if(_clientAddr.sin_addr.s_addr == \
+				((struct sockaddr_in*)(&buf[intrface].ifr_addr))->sin_addr.s_addr)
+			{
+				return -1;
+			}
+
+		}
+
+	}
+	return 0;
 }

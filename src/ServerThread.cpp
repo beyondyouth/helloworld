@@ -12,40 +12,49 @@
 #include "Queue.h"
 #include "Common.h"
 #include "UdpServer.h"
-#include "RecvThread.h"
+#include "ServerThread.h"
 
 
 //extern void setLinkState(L_state s);
 
 
-RecvThread::RecvThread()
+ServerThread::ServerThread()
 {
 	_buflen = MAXITEMLENSIZE;
 	pRecvQueue = new Queue(MAXQUEUELENGTH, MAXITEMLENSIZE);
-	UdpServer* pInsUdp = new UdpServer();
-	_pSock = (Socket*)pInsUdp;
+	_pInsUdp = new UdpServer();
 }
 
-RecvThread::~RecvThread()
+ServerThread::~ServerThread()
 {
+	if(NULL != _pInsUdp)
+	{
+		delete(_pInsUdp);
+	}
 	if(NULL != pRecvQueue)
 	{
 		delete(pRecvQueue);
 	}
 }
 
-void RecvThread::run()
+void ServerThread::run()
 {
 	char tempBuf[MAXITEMLENSIZE] = {0};
-	_pSock->init(6789);
-	_pSock->setSocketBlock();
+	_pInsUdp->init(6789);
+	_pInsUdp->setSocketBlock();
 
 	while(1) {
-		_pSock->recvData(tempBuf, 6);
-		if(tempBuf[0] > 0)
-			printf("recv:%s\n", tempBuf);
-		memset(tempBuf, 0, 6);
-		msleep(50);
+		if(-1 == _pInsUdp->recvData(tempBuf, MAXITEMLENSIZE))
+		{
+
+		}
+		else
+		{
+			printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
+		}
+		
+		
+		memset(tempBuf, 0, MAXITEMLENSIZE);
 	}
 #if 0
 	while(GAME_EXIT != _game_state)
