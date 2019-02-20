@@ -9,6 +9,8 @@
 #include "Socket.h"
 #include "Queue.h"
 #include "Common.h"
+#include "UdpServer.h"
+#include "UdpClient.h"
 #include "ServerThread.h"
 #include "ClientThread.h"
 #include "UserThread.h"
