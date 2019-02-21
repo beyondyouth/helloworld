@@ -33,13 +33,13 @@ void ManagerThread::run()
 	_game_state = GAME_START;
 	ServerThread InsServer;
 	ClientThread InsClient;
-//    UserThread InsUser;
+    UserThread InsUser;
 
 	InsServer.start();
 	InsClient.start();
-//	InsUser.start();
+	InsUser.start();
 
-//	InsUser.wait();
+	InsUser.wait();
 	InsClient.wait();
 	InsServer.wait();
 }

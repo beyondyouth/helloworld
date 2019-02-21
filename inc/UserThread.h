@@ -1,9 +1,6 @@
 #ifndef USER_THREAD_
 #define USER_THREAD_
 
-#define TTY_PATH            "/dev/tty"
-#define STTY_US             "stty raw -echo -F "
-#define STTY_DEF            "stty -raw echo -F "
 
 typedef struct {
     unsigned int user_time;
@@ -15,7 +12,7 @@ public:
     void run();
     int get_char();
     int updateUserMap(void);
-    int showUserMap(void);
+    int showUserMap(void *tmp);
 };
 
 extern std::map<uint32_t, S_user>usermap;

@@ -53,7 +53,7 @@ void ServerThread::run()
 		}
 		else
 		{
-			printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
+			//printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
 			updateUserMap(_pInsUdp->getClientAddr());
 		}
 		
