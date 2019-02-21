@@ -7,6 +7,8 @@
 #include <pthread.h>
 #include <ncurses.h>
 #include <ctype.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include "Debug.h"
 #include "DisPlay.h"
 #include "Thread.h"
@@ -82,6 +84,18 @@ int UserThread::get_char()
         ch = getch();
     }
     return ch;
+}
+
+int UserThread::showUserMap()
+{
+	std::map<uint32_t, S_user>::iterator iter;
+    in_addr temp;
+    for(iter = usermap.begin(); iter != usermap.end(); iter++)
+    {
+        temp.s_addr = iter->first;
+        printf("[IP]:%s\n", inet_ntoa(temp));
+    }
+    return 0;
 }
 
 int UserThread::updateUserMap()

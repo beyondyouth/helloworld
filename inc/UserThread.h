@@ -15,6 +15,7 @@ public:
     void run();
     int get_char();
     int updateUserMap(void);
+    int showUserMap(void);
 };
 
 extern std::map<uint32_t, S_user>usermap;
