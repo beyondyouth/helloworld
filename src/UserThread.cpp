@@ -1,4 +1,6 @@
 #include <string>
+#include <map>
+#include <stdint.h>
 #include <syslog.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,6 +11,8 @@
 #include "DisPlay.h"
 #include "Thread.h"
 #include "UserThread.h"
+
+std::map<int, user>mapuser;
 
 uint32_t lx = 0; //local start x
 uint32_t ly = 0; //local start y

@@ -1,4 +1,5 @@
 #include <string>
+#include <map>
 #include <stdint.h>
 #include <pthread.h>
 #include <arpa/inet.h>
