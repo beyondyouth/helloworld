@@ -9,7 +9,7 @@ typedef struct {
     unsigned int user_addr;
     unsigned int user_time;
     char user_name[32];
-}user;
+}S_user;
 
 class UserThread : public Thread
 {
@@ -18,6 +18,6 @@ public:
     int get_char();
 };
 
-extern std::map<int, user>mapuser;
+extern std::map<int, S_user>mapuser;
 
 #endif /* USER_THREAD_ */

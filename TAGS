@@ -1,0 +1,212 @@
+
+src/Queue.cpp,429
+void Queue_TestSelf(9,119
+Queue::Queue(48,918
+Queue::~Queue(53,1016
+uint32_t Queue::Queue_GetSize(66,1151
+Queue_t * Queue::Queue_Make(74,1346
+void Queue::Queue_Lock(93,1711
+void Queue::Queue_Unlock(98,1774
+void* Queue::Queue_Get(105,1877
+int Queue::Queue_Put(139,2476
+void Queue::Queue_Statistics(174,3088
+uint32_t Queue::Queue_Capacity(188,3533
+uint32_t Queue::Queue_Count(193,3603
+void Queue::Queue_Clear(198,3704
+
+src/UdpServer.cpp,345
+UdpServer::UdpServer(16,295
+UdpServer::~UdpServer(20,323
+int UdpServer::init(24,352
+int UdpServer::setSocketBlock(58,1121
+int UdpServer::setSocketNonblock(65,1272
+int UdpServer::recvData(71,1387
+int UdpServer::sendData(91,1755
+int UdpServer::exit(105,2034
+sockaddr_in UdpServer::getClientAddr(113,2135
+int UdpServer::check_ip(118,2200
+
+src/ClientThread.cpp,102
+ClientThread::ClientThread(18,316
+ClientThread::~ClientThread(25,463
+void ClientThread::run(37,598
+
+src/ManagerThread.cpp,163
+L_state _link_state 20,393
+G_state _game_state 21,428
+ManagerThread::ManagerThread(23,462
+ManagerThread::~ManagerThread(27,498
+void ManagerThread::run(31,535
+
+src/Main.cpp,17
+int main(10,155
+
+src/UserThread.cpp,186
+std::map<int, user>mapuser;mapuser15,259
+uint32_t lx 17,288
+uint32_t ly 18,321
+uint32_t rx 19,354
+uint32_t ry 20,388
+void UserThread::run(22,423
+int UserThread::get_char(61,1409
+
+src/ServerThread.cpp,102
+ServerThread::ServerThread(21,357
+ServerThread::~ServerThread(28,504
+void ServerThread::run(40,639
+
+src/UdpClient.cpp,330
+UdpClient::UdpClient(15,253
+UdpClient::~UdpClient(19,281
+int UdpClient::init(24,316
+int UdpClient::init(29,400
+int UdpClient::setSocketBlock(59,1125
+int UdpClient::setSocketNonblock(66,1276
+int UdpClient::exit(73,1392
+int UdpClient::recvData(83,1590
+int UdpClient::sendData(98,1895
+int UdpClient::sendBroadcast(113,2192
+
+src/Mutex.cpp,252
+#define MUTEX_SUCCESS 7,98
+Mutex::Mutex(9,123
+int Mutex::lock(19,277
+int Mutex::trylock(29,432
+int Mutex::unlock(39,596
+pthread_mutex_t Mutex::getId(49,757
+Mutex::~Mutex(54,811
+MutexLocker::MutexLocker(59,867
+MutexLocker::~MutexLocker(70,1046
+
+src/Thread.cpp,386
+#define THREAD_SUCCES 15,195
+#define THREADID_NO_INIT 16,220
+Thread::Thread(18,250
+Thread::~Thread(25,365
+const char* Thread::getThreadName(29,392
+int Thread::start(34,473
+int Thread::isRunning(46,743
+int Thread::wait(61,1045
+int Thread::exit(80,1453
+int Thread::isStoped(94,1712
+void Thread::msleep(111,2008
+void* Thread::entryPoint(116,2085
+void Thread::destory(124,2223
+
+src/DisPlay.cpp,211
+DisPlay::DisPlay(5,62
+DisPlay::~DisPlay(13,222
+int DisPlay::check_ncurse(19,273
+WINDOW *DisPlay::create_win(DisPlay::create_win26,368
+void DisPlay::destroy_win(35,655
+void DisPlay::create_fightwin(42,800
+
+inc/Socket.h,349
+#define SOCKET_H_2,19
+#define MAXITEMLENSIZE 5,42
+#define MAXQUEUELENGTH 6,70
+class Socket8,101
+	int _sockfd;Socket::_sockfd18,412
+	char _serverIp[Socket::_serverIp20,429
+	uint16_t _serverPort;Socket::_serverPort21,451
+	struct sockaddr_in _clientAddr;Socket::_clientAddr23,478
+	struct sockaddr_in _serverAddr;Socket::_serverAddr24,512
+
+inc/UdpServer.h,175
+#define UDP_SERVER_H_2,22
+class UdpServer 5,46
+	struct sockaddr_in _serverAddr;UdpServer::_serverAddr21,447
+	struct sockaddr_in _clientAddr;UdpServer::_clientAddr22,480
+
+inc/UdpClient.h,84
+#define UDP_CLIENT_H_2,22
+class UdpClient 5,46
+private:UdpClient::private18,449
+
+inc/Mutex.h,160
+#define MUTEX_H_2,17
+class Mutex5,36
+    pthread_mutex_t _mutexId;Mutex::_mutexId16,217
+class MutexLocker19,251
+	Mutex* _mutex;MutexLocker::_mutex26,336
+
+inc/ManagerThread.h,96
+#define MANAGER_THREAD_H_2,26
+class ManagerThread 5,54
+private:ManagerThread::private13,170
+
+inc/Queue.h,456
+#define QUEUE_H_2,17
+    Mutex               *tableMutex;tableMutex6,52
+    uint32_t            item_len;7,107
+    uint32_t            count;9,181
+    uint32_t            capacity;10,241
+    uint32_t            overflow_cnt;11,301
+    uint32_t            front;13,424
+    uint32_t            rear;14,498
+    uint8_t             data_array[data_array16,597
+}Queue_t;Queue_t17,706
+class Queue19,717
+    Queue_t         *_ht Queue::_ht38,1426
+
+inc/Common.h,245
+#define COMMON_H_2,18
+	LINK_START,6,52
+	LINK_SUCCESS,7,65
+	LINK_ABORT,8,80
+	LINK_FAILED9,93
+}L_state;L_state10,106
+	GAME_START,14,132
+	GAME_SELECT,15,145
+	GAME_FIGHT,16,159
+	GAME_OVER,17,172
+	GAME_EXIT18,184
+}G_state;G_state19,195
+
+inc/Thread.h,235
+#define THREAD_H_2,19
+#define STATUS_OK 5,42
+#define STATUS_ERROR 6,63
+class Thread8,90
+	pthread_t _threadId;Thread::_threadId30,466
+	std::string _threadName;Thread::_threadName31,489
+	int _isJoining;Thread::_isJoining32,516
+
+inc/UserThread.h,245
+#define USER_THREAD_2,21
+#define TTY_PATH 4,43
+#define STTY_US 5,82
+#define STTY_DEF 6,131
+    unsigned int user_addr;9,198
+    unsigned int user_time;10,226
+    char user_name[user_name11,254
+}user;user12,278
+class UserThread 14,286
+
+inc/ServerThread.h,207
+#define SERVER_THREAD_H_2,25
+class ServerThread 5,52
+	Queue *pRecvQueue ServerThread::pRecvQueue10,132
+	UdpServer* _pInsUdp;ServerThread::_pInsUdp15,202
+	uint32_t _buflen;ServerThread::_buflen16,224
+
+inc/ClientThread.h,207
+#define CLIENT_THREAD_H_2,25
+class ClientThread 5,52
+	Queue *pSendQueue ClientThread::pSendQueue10,132
+	UdpClient* _pInsUdp;ClientThread::_pInsUdp15,202
+	uint32_t _buflen;ClientThread::_buflen16,224
+
+inc/Debug.h,158
+#define DEBUG_H_2,17
+#define DBG4,35
+#define NVM_PREFIX	7,59
+#define eprintf(9,90
+#define dprintf(14,213
+#define eprintf(20,340
+#define dprintf(24,465
+
+inc/DisPlay.h,90
+#define DISPLAY_H_2,19
+class DisPlay4,39
+    WINDOW *fightwin;DisPlay::fightwin15,265

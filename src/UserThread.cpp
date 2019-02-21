@@ -12,7 +12,7 @@
 #include "Thread.h"
 #include "UserThread.h"
 
-std::map<int, user>mapuser;
+std::map<int, S_user>mapuser;
 
 uint32_t lx = 0; //local start x
 uint32_t ly = 0; //local start y

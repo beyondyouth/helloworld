@@ -1,5 +1,7 @@
 #include <string>
+#include <map>
 #include <stdio.h>
+#include <stdlib.h>
 #include <syslog.h>
 #include <string.h>
 #include <arpa/inet.h>
@@ -12,6 +14,7 @@
 #include "Queue.h"
 #include "Common.h"
 #include "UdpServer.h"
+#include "UserThread.h"
 #include "ServerThread.h"
 
 
@@ -51,6 +54,11 @@ void ServerThread::run()
 		else
 		{
 			printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
+            S_user* temp = (S_user*)malloc(sizeof(S_user));
+            temp->user_addr = _pInsUdp->getClientAddr().sin_addr.s_addr;
+            memcpy(temp->user_name, "unknown", sizeof("unknown"));
+            temp->user_time = 1;
+            mapuser.insert(std::pair<int, S_user>(1, *temp));
 		}
 		
 		
