@@ -12,7 +12,7 @@
 #include "Thread.h"
 #include "UserThread.h"
 
-std::map<int, S_user>mapuser;
+std::map<uint32_t, S_user>usermap;
 
 uint32_t lx = 0; //local start x
 uint32_t ly = 0; //local start y
@@ -31,6 +31,7 @@ void UserThread::run()
 //	mvwprintw(testwin, 1, 1, "r");
 //    InsDisplay.destroy_win(testwin);
     int key = 0;
+    int t = 0;
     for(;;) {
         key = get_char();
         switch(key) {
@@ -55,6 +56,12 @@ void UserThread::run()
         }
         mvprintw(0, 50, "key %3d",key);
         msleep(50);
+        t++;
+        if(t == 20)
+        {
+            t = 0;
+            updateUserMap();
+        }
     }
 }
 
@@ -75,4 +82,19 @@ int UserThread::get_char()
         ch = getch();
     }
     return ch;
+}
+
+int UserThread::updateUserMap()
+{
+	std::map<uint32_t, S_user>::iterator iter;
+
+    for(iter = usermap.begin(); iter != usermap.end(); iter++)
+    {
+        iter->second.user_time--;
+        if(iter->second.user_time < 0)
+        {
+            usermap.erase(iter);
+        }
+    }
+    return 0;
 }

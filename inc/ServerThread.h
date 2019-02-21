@@ -7,6 +7,7 @@ class ServerThread : public Thread
 public:
 	ServerThread();
 	~ServerThread();
+	int updateUserMap(sockaddr_in clientAddr);
 	Queue *pRecvQueue = NULL;
 protected:
 	virtual void run();

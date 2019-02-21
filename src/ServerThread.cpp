@@ -54,11 +54,7 @@ void ServerThread::run()
 		else
 		{
 			printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
-            S_user* temp = (S_user*)malloc(sizeof(S_user));
-            temp->user_addr = _pInsUdp->getClientAddr().sin_addr.s_addr;
-            memcpy(temp->user_name, "unknown", sizeof("unknown"));
-            temp->user_time = 1;
-            mapuser.insert(std::pair<int, S_user>(1, *temp));
+			updateUserMap(_pInsUdp->getClientAddr());
 		}
 		
 		
@@ -79,4 +75,25 @@ void ServerThread::run()
 		msleep(50);
 	}
 #endif
+}
+
+int ServerThread::updateUserMap(sockaddr_in clientAddr)
+{
+	S_user temp;
+	temp.user_time = 3;
+	std::map<uint32_t, S_user>::iterator iter;
+
+    iter = usermap.find(clientAddr.sin_addr.s_addr);  
+  
+    if(iter != usermap.end())  
+	{
+		//update time
+		iter->second.user_time = temp.user_time;
+	}
+    else  
+	{
+		//insert
+		usermap.insert(std::pair<uint32_t, S_user>(clientAddr.sin_addr.s_addr, temp));
+	}
+	return 0;
 }
