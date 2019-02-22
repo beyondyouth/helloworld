@@ -46,35 +46,24 @@ void ServerThread::run()
 	_pInsUdp->init(6789);
 	_pInsUdp->setSocketBlock();
 
-	while(1) {
-		if(-1 == _pInsUdp->recvData(tempBuf, MAXITEMLENSIZE))
-		{
-
-		}
-		else
-		{
-			//printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
-			updateUserMap(_pInsUdp->getClientAddr());
-		}
-		
-		
-		memset(tempBuf, 0, MAXITEMLENSIZE);
-	}
-#if 0
 	while(GAME_EXIT != _game_state)
 	{
-		if(-1 == _pSock->recvData(tempBuf, _buflen))
+		if(-1 != _pInsUdp->recvData(tempBuf, MAXITEMLENSIZE))
 		{
-			eprintf("error:%s %d",__FILE__, __LINE__);
-			_link_state = LINK_ABORT;
-			continue;
+			//printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
+			if(!memcmp("I'm at here!", tempBuf, 16))
+			{	/* broadcast */
+				updateUserMap(_pInsUdp->getClientAddr());
+			}
+			else
+			{	/* unicast */
+				pRecvQueue->Queue_Put(tempBuf, MAXITEMLENSIZE);
+			}
 		}
-		pRecvQueue->Queue_Put(tempBuf, MAXITEMLENSIZE);
+		
 		memset(tempBuf, 0, MAXITEMLENSIZE);
-
 		msleep(50);
 	}
-#endif
 }
 
 int ServerThread::updateUserMap(sockaddr_in clientAddr)

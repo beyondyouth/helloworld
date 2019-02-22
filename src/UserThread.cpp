@@ -21,12 +21,14 @@ uint32_t ry = 0; //remote start y
 void UserThread::run()
 {
     Display InsDisplay;
-    InsDisplay.draw_map();
-    InsDisplay.refresh();
+    //InsDisplay.draw_map();
+    InsDisplay.moveaddch(1,1,'a');
+    //InsDisplay.refresh();
     int t = 0;
     char ch = 0;
     while(GAME_EXIT != _game_state)
     {
+#if 0
         ch = InsDisplay.get_char();
         if(3 == ch)
         {
@@ -41,6 +43,7 @@ void UserThread::run()
         }
         msleep(50);
         t++;
+#endif
     }
 }
 

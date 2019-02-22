@@ -22,7 +22,7 @@ Display::Display()
 	noecho();				/* 禁止输入回显 */
 	
 	keypad(stdscr, TRUE);	/* 允许使用功能键 */
-	curs_set(0);			/* 光标不可显 */
+	//curs_set(0);			/* 光标不可显 */
 
     //system(STTY_US TTY_PATH);
 
@@ -47,7 +47,7 @@ void Display::draw_map()
     for (y = 0; y < LINES; y++) {
         mvhline(y, 0, GRASS, COLS);
     }
-#if 0
+#if 1
     /* 山和山道 */
     for (x = COLS / 2; x < COLS * 3 / 4; x++) {
         mvvline(0, x, MOUNTAIN, LINES);

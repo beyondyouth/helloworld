@@ -52,11 +52,11 @@ void ClientThread::run()
 			pHeart.sendBroadcast(6789, "I'm at here!", 16); /* fa song heart */
 			ii = 0;
 		}
-//		if(0 != pSendQueue->Queue_Count())
+		if(0 != pSendQueue->Queue_Count())
 		{
-			//pSendQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
-			memcpy(tempBuf, "123456", 6);
-			_pInsUdp->sendData(tempBuf, 6);
+			pSendQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
+			//memcpy(tempBuf, "123456", 6);
+			_pInsUdp->sendData(tempBuf, strlen(tempBuf));
 			memset(tempBuf, 0, MAXITEMLENSIZE);
 		}
 		msleep(50);
