@@ -88,12 +88,22 @@ void UserThread::run()
         }
         InsDisplay.mv_addch(ly, lx, 'l');           /* 显示移动之后的光标 */
 
-        if(pSendQueue != NULL)
+        if(pRecvQueue != NULL)
         {
-            memset(tempBuf, 0, MAXITEMLENSIZE);
-            pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
-            /*jie xi packet*/
-            insert_others_bullet_list(ry, rx, rd);
+            if(0 != pRecvQueue->Queue_Count())
+            {
+                memset(tempBuf, 0, MAXITEMLENSIZE);
+                pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
+                /* 解析数据包 */
+                ry = strtol(tempBuf + 3, NULL, 0);
+                rx = strtol(tempBuf + 8, NULL, 0);
+                rd = (dir)strtol(tempBuf + 13, NULL, 0);
+                rs = strtol(tempBuf + 18, NULL, 0);
+                if(1 == rs)
+                {
+                    insert_others_bullet_list(ry, rx, rd);
+                }
+            }
         }
 
         InsDisplay.mv_addch(ry, rx, 'r');           /* 显示移动之后的光标 */
@@ -102,7 +112,7 @@ void UserThread::run()
         if(pSendQueue != NULL)
         {
             memset(tempBuf, 0, MAXITEMLENSIZE);
-            sprintf(tempBuf, "[location]ly:%2d, lx:%2d, ld:%2d, ls:%2d", ly, lx, (int)ld, ls);
+            sprintf(tempBuf, "ly:%2d, lx:%2d, ld:%2d, ls:%2d", ly, lx, (int)ld, ls);
 		    pSendQueue->Queue_Put(tempBuf, sizeof(tempBuf));
         }
         InsDisplay.refresh();
