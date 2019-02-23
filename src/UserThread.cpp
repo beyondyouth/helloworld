@@ -48,74 +48,82 @@ void UserThread::run()
     ly = _lines;									/* 初始位置 */
     rx = _cols/2;
     ry = 1;
+    _game_state = GAME_SELECT;
     while(GAME_EXIT != _game_state)
     {
         ls = 0;
         ch = InsDisplay.get_char();					/* 非阻塞读取输入 */
-        switch (ch)
+        if(GAME_SELECT == _game_state)
         {
-        case 'w':									/* 上移光标 */
-        case 'W':
-            InsDisplay.mv_addch(ly, lx, ' ');
-            if(ly > 1)ly--;
-            ld = UP;
-            break;
-        case 'a':									/* 左移光标 */
-        case 'A':
-            InsDisplay.mv_addch(ly, lx, ' ');
-            if(lx > 1)lx--;
-            ld = LEFT;
-            break;
-        case 's':									/* 下移光标 */
-        case 'S':
-            InsDisplay.mv_addch(ly, lx, ' ');
-            if(ly < _lines)ly++;
-            ld = DOWN;
-            break;
-        case 'd':									/* 右移光标 */
-        case 'D':
-            InsDisplay.mv_addch(ly, lx, ' ');
-            if(lx < _cols)lx++;
-            ld = RIGHT;
-            break;
-        case 'j':									/* 发射子弹 */
-        case 'J':
-            ls = 1;
-            insert_myself_bullet_list(ly, lx, ld);			/* 插入子弹 */
-            break;
-        default:
-            break;
+            _game_state = GAME_FIGHT;
         }
-        InsDisplay.mv_addch(ly, lx, 'l');           /* 显示移动之后的光标 */
-
-        if(pRecvQueue != NULL)
+        if(GAME_FIGHT == _game_state)
         {
-            if(0 != pRecvQueue->Queue_Count())
+            switch (ch)
             {
-                memset(tempBuf, 0, MAXITEMLENSIZE);
-                pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
-                /* 解析数据包 */
-                ry = strtol(tempBuf + 3, NULL, 0);
-                rx = strtol(tempBuf + 8, NULL, 0);
-                rd = (dir)strtol(tempBuf + 13, NULL, 0);
-                rs = strtol(tempBuf + 18, NULL, 0);
-                if(1 == rs)
+            case 'w':									/* 上移光标 */
+            case 'W':
+                InsDisplay.mv_addch(ly, lx, ' ');
+                if(ly > 1)ly--;
+                ld = UP;
+                break;
+            case 'a':									/* 左移光标 */
+            case 'A':
+                InsDisplay.mv_addch(ly, lx, ' ');
+                if(lx > 1)lx--;
+                ld = LEFT;
+                break;
+            case 's':									/* 下移光标 */
+            case 'S':
+                InsDisplay.mv_addch(ly, lx, ' ');
+                if(ly < _lines)ly++;
+                ld = DOWN;
+                break;
+            case 'd':									/* 右移光标 */
+            case 'D':
+                InsDisplay.mv_addch(ly, lx, ' ');
+                if(lx < _cols)lx++;
+                ld = RIGHT;
+                break;
+            case 'j':									/* 发射子弹 */
+            case 'J':
+                ls = 1;
+                insert_myself_bullet_list(ly, lx, ld);			/* 插入子弹 */
+                break;
+            default:
+                break;
+            }
+            InsDisplay.mv_addch(ly, lx, 'l');           /* 显示移动之后的光标 */
+
+            if(pRecvQueue != NULL)
+            {
+                if(0 != pRecvQueue->Queue_Count())
                 {
-                    insert_others_bullet_list(ry, rx, rd);
+                    memset(tempBuf, 0, MAXITEMLENSIZE);
+                    pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
+                    /* 解析数据包 */
+                    ry = strtol(tempBuf + 3, NULL, 0);
+                    rx = strtol(tempBuf + 8, NULL, 0);
+                    rd = (dir)strtol(tempBuf + 13, NULL, 0);
+                    rs = strtol(tempBuf + 18, NULL, 0);
+                    if(1 == rs)
+                    {
+                        insert_others_bullet_list(ry, rx, rd);
+                    }
                 }
             }
-        }
 
-        InsDisplay.mv_addch(ry, rx, 'r');           /* 显示移动之后的光标 */
-        move_myself_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
-        move_others_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
-        if(pSendQueue != NULL)
-        {
-            memset(tempBuf, 0, MAXITEMLENSIZE);
-            sprintf(tempBuf, "ly:%2d, lx:%2d, ld:%2d, ls:%2d", ly, lx, (int)ld, ls);
-		    pSendQueue->Queue_Put(tempBuf, sizeof(tempBuf));
+            InsDisplay.mv_addch(ry, rx, 'r');           /* 显示移动之后的光标 */
+            move_myself_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
+            move_others_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
+            if(pSendQueue != NULL)
+            {
+                memset(tempBuf, 0, MAXITEMLENSIZE);
+                sprintf(tempBuf, "ly:%2d, lx:%2d, ld:%2d, ls:%2d", ly, lx, (int)ld, ls);
+                pSendQueue->Queue_Put(tempBuf, sizeof(tempBuf));
+            }
+            InsDisplay.refresh();
         }
-        InsDisplay.refresh();
         if(t == 20)
         {
             t = 0;
@@ -171,6 +179,10 @@ int UserThread::insert_myself_bullet_list(int y, int x, dir d)
     {
         return -1;
     }
+    if(UP == d)y--;
+    if(LEFT == d)x--;
+    if(DOWN == d)y++;
+    if(RIGHT == d)x++;
     tmp->data.x = x;
     tmp->data.y = y;
     tmp->data.d = d;
@@ -251,6 +263,10 @@ int UserThread::insert_others_bullet_list(int y, int x, dir d)
     {
         return -1;
     }
+    if(UP == d)y--;
+    if(LEFT == d)x--;
+    if(DOWN == d)y++;
+    if(RIGHT == d)x++;
     tmp->data.x = x;
     tmp->data.y = y;
     tmp->data.d = d;
