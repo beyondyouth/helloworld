@@ -19,7 +19,7 @@
 #include "ServerThread.h"
 
 
-//extern void setLinkState(L_state s);
+Queue *pRecvQueue = NULL;
 
 
 ServerThread::ServerThread()

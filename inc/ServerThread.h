@@ -1,6 +1,7 @@
 #ifndef SERVER_THREAD_H_
 #define SERVER_THREAD_H_
 
+extern Queue *pRecvQueue;
 
 class ServerThread : public Thread
 {
@@ -8,7 +9,6 @@ public:
 	ServerThread();
 	~ServerThread();
 	int updateUserMap(sockaddr_in clientAddr);
-	Queue *pRecvQueue = NULL;
 protected:
 	virtual void run();
 	

@@ -19,8 +19,8 @@ Display::Display()
 	keypad(stdscr, TRUE);	/* 允许使用功能键 */
 	curs_set(0);			/* 光标不可显 */
 
-    timeout(30);
-    //nodelay(stdscr, true);  /* fei zu se */
+    timeout(50);			/* 输入阻塞50ms */
+    //nodelay(stdscr, true);  /* 输入非阻塞 */
 
 	clear();
 }
