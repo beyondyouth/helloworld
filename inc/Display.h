@@ -10,10 +10,8 @@ public:
     void refresh();
     void draw_map(void);
     int get_char(void);
-    int move(int y, int x);
-    int moveaddch(int y, int x, char ch);
-    int movedelch(int y, int x);
-    int addprintf(char *str);
+    int mv_addch(int y, int x, char ch);
+    void add_print(const char *cmd, ...);
 private:
     
 };

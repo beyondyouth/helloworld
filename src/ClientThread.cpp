@@ -14,6 +14,7 @@
 #include "UdpClient.h"
 #include "ClientThread.h"
 
+Queue *pSendQueue = NULL;
 
 ClientThread::ClientThread()
 {

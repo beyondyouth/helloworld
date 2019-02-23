@@ -3,11 +3,11 @@
 
 typedef enum
 {
-	LINK_START,
-	LINK_SUCCESS,
-	LINK_ABORT,
-	LINK_FAILED
-}L_state;
+    UP = 0,
+    LEFT,
+    DOWN,
+    RIGHT
+}dir;
 
 typedef enum
 {
@@ -19,7 +19,6 @@ typedef enum
 }G_state;
 
 
-extern L_state _link_state;
 extern G_state _game_state;
 
 #endif /* COMMON_H_ */

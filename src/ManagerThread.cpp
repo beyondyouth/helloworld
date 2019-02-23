@@ -10,6 +10,7 @@
 #include "Socket.h"
 #include "Queue.h"
 #include "Common.h"
+#include "Display.h"
 #include "UdpServer.h"
 #include "UdpClient.h"
 #include "ServerThread.h"
@@ -17,7 +18,6 @@
 #include "UserThread.h"
 #include "ManagerThread.h"
 
-L_state _link_state = LINK_FAILED;
 G_state _game_state = GAME_EXIT;
 
 ManagerThread::ManagerThread()

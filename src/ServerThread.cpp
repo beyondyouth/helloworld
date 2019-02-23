@@ -13,6 +13,7 @@
 #include "Mutex.h"
 #include "Queue.h"
 #include "Common.h"
+#include "Display.h"
 #include "UdpServer.h"
 #include "UserThread.h"
 #include "ServerThread.h"
