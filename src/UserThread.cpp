@@ -22,128 +22,26 @@
 #include "UserThread.h"
 
 std::map<uint32_t, S_user>usermap;
-
-
-int lx = 0; //local start x
-int ly = 0; //local start y
-dir ld = UP;//local direction
-int ls = 0; //local shoot
-int rx = 0; //remote start x
-int ry = 0; //remote start y
-dir rd = DOWN;//remote direction
-int rs = 0; //remote shoot
+const std::string fight_req("fight req");
+in_addr serverAddr;
 
 void UserThread::run()
 {
-    Display InsDisplay;
-    _cols = COLS - 2;
-    _lines = LINES - 2;
-    create_myself_bullet_list();                    /* 创建子弹链表 */
-    create_others_bullet_list();
-    InsDisplay.draw_map();							/* 绘制背景边框 */
-    int t = 0;
-    char ch = 0;
-    char tempBuf[MAXITEMLENSIZE];
-    lx = _cols/2;
-    ly = _lines;									/* 初始位置 */
-    rx = _cols/2;
-    ry = 1;
     _game_state = GAME_SELECT;
-    while(GAME_EXIT != _game_state)
-    {
-        ls = 0;
-        ch = InsDisplay.get_char();					/* 非阻塞读取输入 */
-        if(GAME_SELECT == _game_state)
-        {
-            _game_state = GAME_FIGHT;
-        }
-        if(GAME_FIGHT == _game_state)
-        {
-            switch (ch)
-            {
-            case 'w':									/* 上移光标 */
-            case 'W':
-                InsDisplay.mv_addch(ly, lx, ' ');
-                if(ly > 1)ly--;
-                ld = UP;
-                break;
-            case 'a':									/* 左移光标 */
-            case 'A':
-                InsDisplay.mv_addch(ly, lx, ' ');
-                if(lx > 1)lx--;
-                ld = LEFT;
-                break;
-            case 's':									/* 下移光标 */
-            case 'S':
-                InsDisplay.mv_addch(ly, lx, ' ');
-                if(ly < _lines)ly++;
-                ld = DOWN;
-                break;
-            case 'd':									/* 右移光标 */
-            case 'D':
-                InsDisplay.mv_addch(ly, lx, ' ');
-                if(lx < _cols)lx++;
-                ld = RIGHT;
-                break;
-            case 'j':									/* 发射子弹 */
-            case 'J':
-                ls = 1;
-                insert_myself_bullet_list(ly, lx, ld);			/* 插入子弹 */
-                break;
-            default:
-                break;
-            }
-            InsDisplay.mv_addch(ly, lx, 'l');           /* 显示移动之后的光标 */
-
-            if(pRecvQueue != NULL)
-            {
-                if(0 != pRecvQueue->Queue_Count())
-                {
-                    memset(tempBuf, 0, MAXITEMLENSIZE);
-                    pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
-                    /* 解析数据包 */
-                    ry = strtol(tempBuf + 3, NULL, 0);
-                    rx = strtol(tempBuf + 8, NULL, 0);
-                    rd = (dir)strtol(tempBuf + 13, NULL, 0);
-                    rs = strtol(tempBuf + 18, NULL, 0);
-                    if(1 == rs)
-                    {
-                        insert_others_bullet_list(ry, rx, rd);
-                    }
-                }
-            }
-
-            InsDisplay.mv_addch(ry, rx, 'r');           /* 显示移动之后的光标 */
-            move_myself_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
-            move_others_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
-            if(pSendQueue != NULL)
-            {
-                memset(tempBuf, 0, MAXITEMLENSIZE);
-                sprintf(tempBuf, "ly:%2d, lx:%2d, ld:%2d, ls:%2d", ly, lx, (int)ld, ls);
-                pSendQueue->Queue_Put(tempBuf, sizeof(tempBuf));
-            }
-            InsDisplay.refresh();
-        }
-        if(t == 20)
-        {
-            t = 0;
-            updateUserMap();                        /* 1s */
-        }
-        t++;
-    }
-    destroy_myself_bullet_list();
-    destroy_others_bullet_list();
+    select_loop();
+    fight_loop();
+    gameover_loop();
 }
 
-int UserThread::showUserMap(void *tmp)
+int UserThread::showUserMap(Display& InsDisplay, int y, int x)
 {
 	std::map<uint32_t, S_user>::iterator iter;
-    Display *pInsDisp = (Display *)tmp;
     in_addr temp;
     for(iter = usermap.begin(); iter != usermap.end(); iter++)
     {
         temp.s_addr = iter->first;
-        pInsDisp->add_print("%s", inet_ntoa(temp));
+        InsDisplay.mv(y++, x);
+        InsDisplay.add_print("%s", inet_ntoa(temp));
         //printf("[IP]:%s\n", );
     }
     return 0;
@@ -161,6 +59,194 @@ int UserThread::updateUserMap()						/* 更新用户列表 */
             usermap.erase(iter);
         }
     }
+    return 0;
+}
+
+int UserThread::select_loop()
+{
+    int t = 0;
+    char ch = 0;
+    char tempBuf[MAXITEMLENSIZE];
+    int lx = COLS/2 - 8;
+    int ly = LINES/2;
+    Display InsDisplay;
+    _pInsUdp = new UdpClient();
+    std::map<uint32_t, S_user>::iterator iter = usermap.begin();
+    showUserMap(InsDisplay, ly, lx);
+    while(GAME_SELECT == _game_state)
+    {
+        ch = InsDisplay.get_char();					/* 非阻塞读取输入 */
+        switch (ch)
+        {
+        case 'w':									/* 上移光标 */
+        case 'W':
+            InsDisplay.mv_addch(ly, lx, ' ');
+            if(iter != usermap.begin())
+            {
+                iter--;
+                ly--;
+            }
+            InsDisplay.mv_addch(ly, lx, '>');
+            break;
+        case 's':									/* 下移光标 */
+        case 'S':
+            InsDisplay.mv_addch(ly, lx, ' ');
+            if(iter != usermap.end())
+            {
+                iter++;
+                ly++;
+            }
+            InsDisplay.mv_addch(ly, lx, '>');
+            break;
+        case 'j':									/* 下移光标 */
+        case 'J':
+            serverAddr.s_addr = iter->first;
+            _pInsUdp->init(inet_ntoa(serverAddr), 6789);
+            _pInsUdp->setSocketNonblock();
+            if(NULL != pSendQueue)
+            {
+                pSendQueue->Queue_Put(fight_req.c_str(), sizeof(fight_req));
+                _game_state = GAME_FIGHT;
+            }
+        default:
+            break;
+        }
+        if(NULL != pRecvQueue)
+        {
+            pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
+            if(!memcmp(tempBuf, fight_req.c_str(), sizeof(fight_req)))
+            {
+                _game_state = GAME_FIGHT;
+            }
+        }
+        InsDisplay.refresh();
+        if(t == 20)
+        {
+            t = 0;
+            updateUserMap();                        /* 1s */
+            showUserMap(InsDisplay, ly, lx);
+        }
+        msleep(50);
+        t++;
+    }
+    if(NULL != _pInsUdp)
+    {
+        delete(_pInsUdp);
+    }
+    return 0;
+}
+
+int UserThread::fight_loop()
+{
+    int t = 0;
+    char ch = 0;
+    char tempBuf[MAXITEMLENSIZE];
+    Display InsDisplay;
+    _cols = COLS - 2;
+    _lines = LINES - 2;
+    int lx = _cols/2; //local start x
+    int ly = _lines; //local start y
+    dir ld = UP;//local direction
+    int ls = 0; //local shoot
+    int rx = _cols/2; //remote start x
+    int ry = 1; //remote start y
+    dir rd = DOWN;//remote direction
+    int rs = 0; //remote shoot
+    _pInsUdp = new UdpClient();
+    _pInsUdp->init(inet_ntoa(serverAddr), 6789);
+    _pInsUdp->setSocketNonblock();
+    create_myself_bullet_list();                    /* 创建子弹链表 */
+    create_others_bullet_list();
+    InsDisplay.draw_map();							/* 绘制背景边框 */
+
+    while(GAME_FIGHT == _game_state)
+    {
+        ls = 0;
+        ch = InsDisplay.get_char();					/* 非阻塞读取输入 */
+        switch (ch)
+        {
+        case 'w':									/* 上移光标 */
+        case 'W':
+            InsDisplay.mv_addins(ly, lx, ld, ' ');
+            if(ly > 1)ly--;
+            ld = UP;
+            break;
+        case 'a':									/* 左移光标 */
+        case 'A':
+            InsDisplay.mv_addins(ly, lx, ld, ' ');
+            if(lx > 1)lx--;
+            ld = LEFT;
+            break;
+        case 's':									/* 下移光标 */
+        case 'S':
+            InsDisplay.mv_addins(ly, lx, ld, ' ');
+            if(ly < _lines)ly++;
+            ld = DOWN;
+            break;
+        case 'd':									/* 右移光标 */
+        case 'D':
+            InsDisplay.mv_addins(ly, lx, ld, ' ');
+            if(lx < _cols)lx++;
+            ld = RIGHT;
+            break;
+        case 'j':									/* 发射子弹 */
+        case 'J':
+            ls = 1;
+            insert_myself_bullet_list(ly, lx, ld);			/* 插入子弹 */
+            break;
+        default:
+            break;
+        }
+        InsDisplay.mv_addins(ly, lx, ld, 254);           /* 显示移动之后的光标 */
+
+        if(pRecvQueue != NULL)
+        {
+            if(0 != pRecvQueue->Queue_Count())
+            {
+                memset(tempBuf, 0, MAXITEMLENSIZE);
+                pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
+                /* 解析数据包 */
+                ry = strtol(tempBuf + 3, NULL, 0);
+                rx = strtol(tempBuf + 8, NULL, 0);
+                rd = (dir)strtol(tempBuf + 13, NULL, 0);
+                rs = strtol(tempBuf + 18, NULL, 0);
+                if(1 == rs)
+                {
+                    insert_others_bullet_list(ry, rx, rd);
+                }
+            }
+        }
+
+        InsDisplay.mv_addch(ry, rx, 'r');           /* 显示移动之后的光标 */
+        move_myself_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
+        move_others_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
+        if(pSendQueue != NULL)
+        {
+            memset(tempBuf, 0, MAXITEMLENSIZE);
+            sprintf(tempBuf, "ly:%2d, lx:%2d, ld:%2d, ls:%2d", ly, lx, (int)ld, ls);
+            pSendQueue->Queue_Put(tempBuf, sizeof(tempBuf));
+        }
+        InsDisplay.refresh();
+        
+        if(t == 20)
+        {
+            t = 0;
+            updateUserMap();                        /* 1s */
+        }
+        msleep(50);
+        t++;
+    }
+    destroy_myself_bullet_list();
+    destroy_others_bullet_list();
+    if(NULL != _pInsUdp)
+    {
+        delete(_pInsUdp);
+    }
+    return 0;
+}
+
+int UserThread::gameover_loop(void)
+{
     return 0;
 }
 

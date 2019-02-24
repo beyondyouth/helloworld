@@ -3,6 +3,7 @@
 
 
 extern Queue *pSendQueue;
+extern UdpClient* _pInsUdp;
 
 class ClientThread : public Thread
 {
@@ -13,7 +14,6 @@ protected:
 	virtual void run();
 	
 private:
-	UdpClient* _pInsUdp;
 	uint32_t _buflen;
 };
 

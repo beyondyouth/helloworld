@@ -25,7 +25,10 @@ public:
     void run();
     int get_char();
     int updateUserMap(void);
-    int showUserMap(void *tmp);
+    int showUserMap(Display& InsDisplay, int y, int x);
+    int select_loop(void);
+    int fight_loop(void);
+    int gameover_loop(void);
     int create_myself_bullet_list();
     int insert_myself_bullet_list(int y, int x, dir d);
     int move_myself_bullet_list(Display& ins);

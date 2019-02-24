@@ -8,7 +8,7 @@
 class Socket
 {
 public:
-	virtual int init(uint16_t serverPort) = 0;
+//	virtual int init(uint16_t serverPort) = 0;
 	virtual int recvData(char *buf, uint32_t len) = 0;
 	virtual int sendData(const char *buf, uint32_t len) = 0;
 	virtual int setSocketBlock(void) = 0;

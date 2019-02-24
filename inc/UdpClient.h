@@ -8,7 +8,7 @@ public:
 	UdpClient(void);
 	virtual ~UdpClient(void);
 public:
-	virtual int init(uint16_t servPort);
+	virtual int init(const char *serverIp, uint16_t serverPort);
 	virtual int recvData(char *buf,uint32_t len);
 	virtual int sendData(const char *buf,uint32_t len);
 	virtual int setSocketBlock(void);

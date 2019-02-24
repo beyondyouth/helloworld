@@ -19,8 +19,7 @@ Display::Display()
 	keypad(stdscr, TRUE);	/* 允许使用功能键 */
 	curs_set(0);			/* 光标不可显 */
 
-    timeout(50);			/* 输入阻塞50ms */
-    //nodelay(stdscr, true);  /* 输入非阻塞 */
+    timeout(0);				/* 输入阻塞0ms */
 
 	clear();
 }
@@ -45,9 +44,37 @@ int Display::get_char()
     return getch();
 }
 
+int Display::mv(int y, int x)
+{
+	return mvwin(stdscr, y, x);
+}
+
 int Display::mv_addch(int y, int x, char ch)
 {
 	return mvaddch(y, x, ch);
+}
+
+int Display::mv_addins(int y, int x, int d, char ch)
+{
+	mvaddch(y, x, ch);
+	switch(d)
+	{
+		case 0:
+		mvaddch(y-1, x, ch);
+		break;
+		case 1:
+		mvaddch(y, x-1, ch);
+		break;
+		case 2:
+		mvaddch(y+1, x, ch);
+		break;
+		case 3:
+		mvaddch(y, x+1, ch);
+		break;
+		default:
+		break;
+	}
+	return 0;
 }
 
 void Display::add_print(const char *cmd, ...)

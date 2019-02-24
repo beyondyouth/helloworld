@@ -26,7 +26,7 @@ int UdpClient::init(const char* localIp, uint16_t localPort)
 	return -1;
 }
 #endif
-int UdpClient::init(uint16_t serverPort)
+int UdpClient::init(const char *serverIp, uint16_t serverPort)
 {
 	_serverPort = serverPort;
 	_sockfd = socket(AF_INET, SOCK_DGRAM, 0); /*IPv4协议 数据报socket*/
@@ -49,7 +49,7 @@ int UdpClient::init(uint16_t serverPort)
 #endif
 	_serverAddr.sin_family = AF_INET;
 	_serverAddr.sin_port = htons(_serverPort);
-	_serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	_serverAddr.sin_addr.s_addr = inet_addr(serverIp);
 	//memset(&(_serverAddr.sin_zero), 0, 8);
 
 	return 0;

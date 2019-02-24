@@ -15,20 +15,16 @@
 #include "ClientThread.h"
 
 Queue *pSendQueue = NULL;
+UdpClient *_pInsUdp = NULL;
 
 ClientThread::ClientThread()
 {
 	_buflen = MAXITEMLENSIZE;
 	pSendQueue = new Queue(MAXQUEUELENGTH, MAXITEMLENSIZE);
-	_pInsUdp = new UdpClient();
 }
 
 ClientThread::~ClientThread()
 {
-	if(NULL != _pInsUdp)
-	{
-		delete(_pInsUdp);
-	}
 	if(NULL != pSendQueue)
 	{
 		delete(pSendQueue);
@@ -37,12 +33,8 @@ ClientThread::~ClientThread()
 
 void ClientThread::run()
 {
-	char tempBuf[MAXITEMLENSIZE] = {0};
-
-	_pInsUdp->init(6789);
-	_pInsUdp->setSocketNonblock();
-
 	UdpClient pHeart;
+	char tempBuf[MAXITEMLENSIZE] = {0};
 	
 #if 1
 	int ii = 0;
@@ -55,10 +47,13 @@ void ClientThread::run()
 		}
 		if(0 != pSendQueue->Queue_Count())
 		{
-			pSendQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
-			//memcpy(tempBuf, "123456", 6);
-			_pInsUdp->sendData(tempBuf, strlen(tempBuf));
-			memset(tempBuf, 0, MAXITEMLENSIZE);
+			if(NULL != _pInsUdp)
+			{
+				pSendQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
+				//memcpy(tempBuf, "123456", 6);
+				_pInsUdp->sendData(tempBuf, strlen(tempBuf));
+				memset(tempBuf, 0, MAXITEMLENSIZE);
+			}
 		}
 		msleep(50);
 		ii++;
