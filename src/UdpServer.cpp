@@ -1,3 +1,4 @@
+#include <string>
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -21,7 +22,7 @@ UdpServer::~UdpServer()
 {
 }
 
-int UdpServer::init(uint16_t serverPort)
+int UdpServer::init(const char *serverIp, uint16_t serverPort)
 {
 	_serverPort = serverPort;
 	_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -113,6 +114,11 @@ int UdpServer::exit()
 sockaddr_in UdpServer::getClientAddr()
 {
 	return _clientAddr;
+}
+
+sockaddr_in UdpServer::getServerAddr()
+{
+	return _serverAddr;
 }
 
 int UdpServer::check_ip()

@@ -18,6 +18,7 @@
 #include "UserThread.h"
 #include "ManagerThread.h"
 
+L_state _link_state = LINK_ERR;
 G_state _game_state = GAME_EXIT;
 
 ManagerThread::ManagerThread()

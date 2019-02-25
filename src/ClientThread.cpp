@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <string>
+#include <stdlib.h>
 #include <syslog.h>
 #include <string.h>
 #include <arpa/inet.h>
@@ -14,13 +14,12 @@
 #include "UdpClient.h"
 #include "ClientThread.h"
 
+
 Queue *pSendQueue = NULL;
-UdpClient *_pInsUdp = NULL;
 
 ClientThread::ClientThread()
 {
-	_buflen = MAXITEMLENSIZE;
-	pSendQueue = new Queue(MAXQUEUELENGTH, MAXITEMLENSIZE);
+	pSendQueue = new Queue(MAXQUEUELENGTH, sizeof(sock_item_t));
 }
 
 ClientThread::~ClientThread()
@@ -34,7 +33,7 @@ ClientThread::~ClientThread()
 void ClientThread::run()
 {
 	UdpClient pHeart;
-	char tempBuf[MAXITEMLENSIZE] = {0};
+	sock_item_t tempSock;
 	
 #if 1
 	int ii = 0;
@@ -42,18 +41,25 @@ void ClientThread::run()
 	{
 		if(ii == 20)
 		{
-			pHeart.sendBroadcast(6789, "I'm at here!", 16); /* fa song heart */
+			pHeart.sendBroadcast(6789, heart_req.c_str(), heart_req.length()); /* fa song heart */
 			ii = 0;
 		}
-		if(0 != pSendQueue->Queue_Count())
+		if(pSendQueue->Queue_Count())
 		{
-			if(NULL != _pInsUdp)
+			pSendQueue->Queue_Get(&tempSock, sizeof(sock_item_t));
+			if(NULL != tempSock.psock && NULL != tempSock.data)
 			{
-				pSendQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
-				//memcpy(tempBuf, "123456", 6);
-				_pInsUdp->sendData(tempBuf, strlen(tempBuf));
-				memset(tempBuf, 0, MAXITEMLENSIZE);
+				tempSock.psock->sendData(tempSock.data, tempSock.len);
 			}
+			if(NULL != tempSock.data)
+			{
+				free(tempSock.data);
+			}
+			if(NULL != tempSock.psock)
+			{
+				delete(tempSock.psock);
+			}
+			memset(&tempSock, 0, sizeof(sock_item_t));
 		}
 		msleep(50);
 		ii++;

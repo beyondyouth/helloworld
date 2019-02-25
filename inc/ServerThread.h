@@ -11,10 +11,6 @@ public:
 	int updateUserMap(sockaddr_in clientAddr);
 protected:
 	virtual void run();
-	
-private:
-	UdpServer* _pInsUdp;
-	uint32_t _buflen;
 };
 
 

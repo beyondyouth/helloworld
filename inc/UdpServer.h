@@ -6,20 +6,19 @@ class UdpServer : public Socket
 {
 public:
 	UdpServer(void);
-	virtual ~UdpServer(void);
+	~UdpServer(void);
 public:
-	virtual int init(uint16_t serverPort);
+	virtual int init(const char *serverIp, uint16_t serverPort);
 	virtual int recvData(char *buf, uint32_t len);
 	virtual int sendData(const char *buf, uint32_t len);
 	virtual int setSocketBlock(void);
 	virtual int setSocketNonblock(void);
 	virtual int exit(void);
-	
-	sockaddr_in getClientAddr(void);
+	virtual sockaddr_in getClientAddr(void);
+	virtual sockaddr_in getServerAddr(void);
+
 	int check_ip(void);
 private:
-	struct sockaddr_in _serverAddr;
-	struct sockaddr_in _clientAddr;
 };
 
 

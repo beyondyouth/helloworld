@@ -1,3 +1,4 @@
+#include <string>
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -20,12 +21,7 @@ UdpClient::~UdpClient()
 {
 }
 
-#if 0
-int UdpClient::init(const char* localIp, uint16_t localPort)
-{
-	return -1;
-}
-#endif
+
 int UdpClient::init(const char *serverIp, uint16_t serverPort)
 {
 	_serverPort = serverPort;
@@ -79,6 +75,19 @@ int UdpClient::exit()
 
 	return 0;
 }
+
+
+sockaddr_in UdpClient::getClientAddr()
+{
+	return _clientAddr;
+}
+
+
+sockaddr_in UdpClient::getServerAddr()
+{
+	return _serverAddr;
+}
+
 
 int UdpClient::recvData(char *buf,uint32_t len)
 {

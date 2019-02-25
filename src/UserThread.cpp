@@ -22,14 +22,17 @@
 #include "UserThread.h"
 
 std::map<uint32_t, S_user>usermap;
-const std::string fight_req("fight req");
+
 in_addr serverAddr;
 
 void UserThread::run()
 {
     _game_state = GAME_SELECT;
+    _link_state = LINK_REQ;
     select_loop();
+    _game_state = GAME_FIGHT;
     fight_loop();
+    _game_state = GAME_OVER;
     gameover_loop();
 }
 
@@ -66,11 +69,10 @@ int UserThread::select_loop()
 {
     int t = 0;
     char ch = 0;
-    char tempBuf[MAXITEMLENSIZE];
     int lx = COLS/2 - 8;
     int ly = LINES/2;
     Display InsDisplay;
-    _pInsUdp = new UdpClient();
+    sock_item_t tempSock;
     std::map<uint32_t, S_user>::iterator iter = usermap.begin();
     showUserMap(InsDisplay, ly, lx);
     while(GAME_SELECT == _game_state)
@@ -100,23 +102,106 @@ int UserThread::select_loop()
             break;
         case 'j':									/* 下移光标 */
         case 'J':
-            serverAddr.s_addr = iter->first;
-            _pInsUdp->init(inet_ntoa(serverAddr), 6789);
-            _pInsUdp->setSocketNonblock();
-            if(NULL != pSendQueue)
+            if(LINK_REQ == _link_state)
             {
-                pSendQueue->Queue_Put(fight_req.c_str(), sizeof(fight_req));
-                _game_state = GAME_FIGHT;
+                memset(&tempSock, 0, sizeof(sock_item_t));
+                serverAddr.s_addr = iter->first;
+                tempSock.psock = new UdpClient();
+                tempSock.psock->init(inet_ntoa(serverAddr), 6789);
+                tempSock.psock->setSocketNonblock();
+                tempSock.data = (char *)malloc(fight_req.length());
+                if(NULL == tempSock.data)
+                {
+                    eprintf("malloc error!\n");
+                    break;
+                }
+                tempSock.len = fight_req.length();
+                memcpy(tempSock.data, fight_req.c_str(), fight_req.length());
+                if(NULL != pSendQueue)
+                {
+                    pSendQueue->Queue_Put(&tempSock, sizeof(sock_item_t));
+                    _link_state = LINK_RSP;
+                }
             }
+            break;
+        case 'y':
+        case 'Y':
+            if(LINK_WAIT == _link_state)
+            {
+                memset(&tempSock, 0, sizeof(sock_item_t));
+                tempSock.psock = new UdpClient();
+                tempSock.psock->init(inet_ntoa(serverAddr), 6789);
+                tempSock.psock->setSocketNonblock();
+                tempSock.data = (char *)malloc(fight_rsp.length());
+                memset(tempSock.data, 0, fight_rsp.length());
+                if(NULL == tempSock.data)
+                {
+                    eprintf("malloc error!\n");
+                    return -1;
+                }
+                tempSock.len = fight_rsp.length();
+                memcpy(tempSock.data, fight_rsp.c_str(), fight_rsp.length());
+                if(NULL != pSendQueue)
+                {
+                    pSendQueue->Queue_Put(&tempSock, sizeof(sock_item_t));
+                    _link_state = LINK_OK;
+                    _game_state = GAME_FIGHT;
+                }
+            }
+            break;
+        case 'n':
+        case 'N':
+            if(LINK_WAIT == _link_state)
+            {
+                memset(&tempSock, 0, sizeof(sock_item_t));
+                tempSock.psock = new UdpClient();
+                tempSock.psock->init(inet_ntoa(serverAddr), 6789);
+                tempSock.psock->setSocketNonblock();
+                tempSock.data = (char *)malloc(fight_rej.length());
+                memset(tempSock.data, 0, fight_rej.length());
+                if(NULL == tempSock.data)
+                {
+                    eprintf("malloc error!\n");
+                    return -1;
+                }
+                tempSock.len = fight_rej.length();
+                memcpy(tempSock.data, fight_rej.c_str(), fight_rej.length());
+                if(NULL != pSendQueue)
+                {
+                    pSendQueue->Queue_Put(&tempSock, sizeof(sock_item_t));
+                    _link_state = LINK_REQ;
+                }
+            }
+            break;
         default:
             break;
         }
-        if(NULL != pRecvQueue)
+        if(NULL != pRecvQueue && pRecvQueue->Queue_Count())
         {
-            pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
-            if(!memcmp(tempBuf, fight_req.c_str(), sizeof(fight_req)))
+            if(LINK_REQ == _link_state || LINK_RSP == _link_state)
             {
-                _game_state = GAME_FIGHT;
+                pRecvQueue->Queue_Get(&tempSock, sizeof(sock_item_t));
+                if(!memcmp(tempSock.data, fight_req.c_str(), fight_req.length()))
+                {
+                    serverAddr = tempSock.psock->getServerAddr().sin_addr;
+                    _link_state = LINK_WAIT;
+                }
+                if(!memcmp(tempSock.data, fight_rsp.c_str(), fight_rsp.length()))
+                {
+                    if(serverAddr.s_addr == tempSock.psock->getServerAddr().sin_addr.s_addr)
+                    {
+                        _link_state = LINK_OK;
+                        _game_state = GAME_FIGHT;
+                    }
+                }
+                if(NULL != tempSock.data)
+                {
+                    free(tempSock.data);
+                }
+                if(NULL != tempSock.psock)
+                {
+                    delete(tempSock.psock);
+                }
             }
         }
         InsDisplay.refresh();
@@ -129,10 +214,6 @@ int UserThread::select_loop()
         msleep(50);
         t++;
     }
-    if(NULL != _pInsUdp)
-    {
-        delete(_pInsUdp);
-    }
     return 0;
 }
 
@@ -140,7 +221,6 @@ int UserThread::fight_loop()
 {
     int t = 0;
     char ch = 0;
-    char tempBuf[MAXITEMLENSIZE];
     Display InsDisplay;
     _cols = COLS - 2;
     _lines = LINES - 2;
@@ -152,9 +232,7 @@ int UserThread::fight_loop()
     int ry = 1; //remote start y
     dir rd = DOWN;//remote direction
     int rs = 0; //remote shoot
-    _pInsUdp = new UdpClient();
-    _pInsUdp->init(inet_ntoa(serverAddr), 6789);
-    _pInsUdp->setSocketNonblock();
+    sock_item_t tempSock;
     create_myself_bullet_list();                    /* 创建子弹链表 */
     create_others_bullet_list();
     InsDisplay.draw_map();							/* 绘制背景边框 */
@@ -203,16 +281,23 @@ int UserThread::fight_loop()
         {
             if(0 != pRecvQueue->Queue_Count())
             {
-                memset(tempBuf, 0, MAXITEMLENSIZE);
-                pRecvQueue->Queue_Get(tempBuf, MAXITEMLENSIZE);
+                pRecvQueue->Queue_Get(&tempSock, sizeof(sock_item_t));
                 /* 解析数据包 */
-                ry = strtol(tempBuf + 3, NULL, 0);
-                rx = strtol(tempBuf + 8, NULL, 0);
-                rd = (dir)strtol(tempBuf + 13, NULL, 0);
-                rs = strtol(tempBuf + 18, NULL, 0);
+                ry = strtol(tempSock.data + 3, NULL, 0);
+                rx = strtol(tempSock.data + 8, NULL, 0);
+                rd = (dir)strtol(tempSock.data + 13, NULL, 0);
+                rs = strtol(tempSock.data + 18, NULL, 0);
                 if(1 == rs)
                 {
                     insert_others_bullet_list(ry, rx, rd);
+                }
+                if(NULL != tempSock.data)
+                {
+                    free(tempSock.data);
+                }
+                if(NULL != tempSock.psock)
+                {
+                    delete(tempSock.psock);
                 }
             }
         }
@@ -222,9 +307,18 @@ int UserThread::fight_loop()
         move_others_bullet_list(InsDisplay);				/* 显示移动之后的子弹 */
         if(pSendQueue != NULL)
         {
-            memset(tempBuf, 0, MAXITEMLENSIZE);
-            sprintf(tempBuf, "ly:%2d, lx:%2d, ld:%2d, ls:%2d", ly, lx, (int)ld, ls);
-            pSendQueue->Queue_Put(tempBuf, sizeof(tempBuf));
+            tempSock.psock = new UdpClient();
+            tempSock.psock->init(inet_ntoa(serverAddr), 6789);
+            tempSock.psock->setSocketNonblock();
+            tempSock.data = (char *)malloc(MAXITEMLENSIZE);
+            if(NULL == tempSock.data)
+            {
+                eprintf("malloc error!\n");
+                break;
+            }
+            memset(tempSock.data, 0, MAXITEMLENSIZE);
+            sprintf(tempSock.data, "ly:%2d, lx:%2d, ld:%2d, ls:%2d", ly, lx, (int)ld, ls);
+            pSendQueue->Queue_Put(&tempSock, sizeof(sock_item_t));
         }
         InsDisplay.refresh();
         
@@ -238,10 +332,6 @@ int UserThread::fight_loop()
     }
     destroy_myself_bullet_list();
     destroy_others_bullet_list();
-    if(NULL != _pInsUdp)
-    {
-        delete(_pInsUdp);
-    }
     return 0;
 }
 
@@ -263,6 +353,7 @@ int UserThread::insert_myself_bullet_list(int y, int x, dir d)
     tmp = (bullet_list_t*)malloc(sizeof(bullet_list_t));
     if(NULL == tmp)
     {
+        eprintf("malloc error\n");
         return -1;
     }
     if(UP == d)y--;

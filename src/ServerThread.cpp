@@ -1,5 +1,6 @@
 #include <string>
 #include <map>
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
@@ -24,17 +25,11 @@ Queue *pRecvQueue = NULL;
 
 ServerThread::ServerThread()
 {
-	_buflen = MAXITEMLENSIZE;
-	pRecvQueue = new Queue(MAXQUEUELENGTH, MAXITEMLENSIZE);
-	_pInsUdp = new UdpServer();
+	pRecvQueue = new Queue(MAXQUEUELENGTH, sizeof(sock_item_t));
 }
 
 ServerThread::~ServerThread()
 {
-	if(NULL != _pInsUdp)
-	{
-		delete(_pInsUdp);
-	}
 	if(NULL != pRecvQueue)
 	{
 		delete(pRecvQueue);
@@ -43,26 +38,42 @@ ServerThread::~ServerThread()
 
 void ServerThread::run()
 {
-	char tempBuf[MAXITEMLENSIZE] = {0};
-	_pInsUdp->init(6789);
-	_pInsUdp->setSocketBlock();
+	sock_item_t tempSock;
 
 	while(GAME_EXIT != _game_state)
 	{
-		if(-1 != _pInsUdp->recvData(tempBuf, MAXITEMLENSIZE))
+		tempSock.psock = new UdpServer();
+		tempSock.psock->init(NULL, 6789);
+		tempSock.psock->setSocketBlock();
+		tempSock.data = (char *)malloc(MAXITEMLENSIZE);
+		if(NULL == tempSock.data)
+		{
+			eprintf("malloc error!\n");
+			break;
+		}
+		memset(tempSock.data, 0, MAXITEMLENSIZE);
+		if(-1 != tempSock.psock->recvData(tempSock.data, MAXITEMLENSIZE))
 		{
 			//printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
-			if(!memcmp("I'm at here!", tempBuf, 16))
+			if(!memcmp(heart_req.c_str(), tempSock.data, heart_req.length()))
 			{	/* broadcast */
-				updateUserMap(_pInsUdp->getClientAddr());
+				updateUserMap(tempSock.psock->getClientAddr());
+				if(NULL == tempSock.data)
+				{
+					free(tempSock.data);
+				}
+				if(NULL == tempSock.psock)
+				{
+					delete(tempSock.psock);
+				}
 			}
 			else
 			{	/* unicast */
-				pRecvQueue->Queue_Put(tempBuf, MAXITEMLENSIZE);
+				tempSock.len = strlen(tempSock.data);
+				pRecvQueue->Queue_Put(&tempSock, sizeof(sock_item_t));
 			}
 		}
 		
-		memset(tempBuf, 0, MAXITEMLENSIZE);
 		msleep(50);
 	}
 }
