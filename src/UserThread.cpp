@@ -200,6 +200,7 @@ int UserThread::select_loop()
                 }
                 if(NULL != tempSock.psock)
                 {
+                    tempSock.psock->exit();
                     delete(tempSock.psock);
                 }
             }
@@ -297,6 +298,7 @@ int UserThread::fight_loop()
                 }
                 if(NULL != tempSock.psock)
                 {
+                    tempSock.psock->exit();
                     delete(tempSock.psock);
                 }
             }

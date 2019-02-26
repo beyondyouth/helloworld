@@ -57,6 +57,7 @@ void ClientThread::run()
 			}
 			if(NULL != tempSock.psock)
 			{
+                tempSock.psock->exit();
 				delete(tempSock.psock);
 			}
 			memset(&tempSock, 0, sizeof(sock_item_t));
