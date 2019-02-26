@@ -8,7 +8,7 @@ public:
     Display();
     ~Display();
     void refresh();
-    void draw_map(void);
+    void fight_map(void);
     int get_char(void);
     int mv(int y, int x);
     int mv_addch(int y, int x, char ch);

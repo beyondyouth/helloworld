@@ -233,7 +233,7 @@ int UserThread::fight_loop()
     sock_item_t tempSock;
     create_myself_bullet_list();                    /* 创建子弹链表 */
     create_others_bullet_list();
-    InsDisplay.draw_map();							/* 绘制背景边框 */
+    InsDisplay.fight_map();							/* 绘制背景边框 */
 
     while(GAME_FIGHT == _game_state)
     {

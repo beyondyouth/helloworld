@@ -34,7 +34,7 @@ void Display::refresh()
 	wrefresh(stdscr);
 }
 
-void Display::draw_map()
+void Display::fight_map()
 {
     box(stdscr, 0, 0);
 }
