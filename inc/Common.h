@@ -22,9 +22,7 @@ typedef enum
 typedef enum
 {
 	GAME_START,				//游戏开始
-	GAME_MAIN_MENU,			//主菜单
-	GAME_CONFIG_NETWORK,	//配置网络
-	GAME_CONFIG_OPPONENT,	//配置对手
+	GAME_SELECT,			//配置对手
 	GAME_FIGHT,				//对战状态
 	GAME_PAUSE,				//暂停状态
 	GAME_OVER,				//胜负已分

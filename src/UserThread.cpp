@@ -28,11 +28,8 @@ in_addr serverAddr;
 void UserThread::run()
 {
     _game_state = GAME_SELECT;
-    _link_state = LINK_REQ;
     select_loop();
-    _game_state = GAME_FIGHT;
     fight_loop();
-    _game_state = GAME_OVER;
     gameover_loop();
 }
 
@@ -65,7 +62,7 @@ int UserThread::updateUserMap()						/* 更新用户列表 */
     return 0;
 }
 
-int UserThread::select_loop()
+int UserThread::select_loop()						/* 选择对方循环 */
 {
     int t = 0;
     char ch = 0;
@@ -100,7 +97,7 @@ int UserThread::select_loop()
             }
             InsDisplay.mv_addch(ly, lx, '>');
             break;
-        case 'j':									/* 下移光标 */
+        case 'j':									/* 向选中的ip发送对战请求 */
         case 'J':
             if(LINK_REQ == _link_state)
             {
@@ -124,7 +121,7 @@ int UserThread::select_loop()
                 }
             }
             break;
-        case 'y':
+        case 'y':									/* 确认对战请求 */
         case 'Y':
             if(LINK_WAIT == _link_state)
             {
@@ -149,7 +146,7 @@ int UserThread::select_loop()
                 }
             }
             break;
-        case 'n':
+        case 'n':									/* 拒绝对战请求 */
         case 'N':
             if(LINK_WAIT == _link_state)
             {
@@ -188,7 +185,7 @@ int UserThread::select_loop()
                 }
                 if(!memcmp(tempSock.data, fight_rsp.c_str(), fight_rsp.length()))
                 {
-                    if(serverAddr.s_addr == tempSock.psock->getServerAddr().sin_addr.s_addr)
+                    if(serverAddr.s_addr == tempSock.psock->getServerAddr().sin_addr.s_addr)//如果接收到的rsp来自已发送req的对手
                     {
                         _link_state = LINK_OK;
                         _game_state = GAME_FIGHT;

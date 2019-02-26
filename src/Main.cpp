@@ -7,7 +7,7 @@
 #include "ManagerThread.h"
 
 
-int main()
+int main(int argc, char *argv[])
 {
 	ManagerThread InsManager;
 	InsManager.start();
