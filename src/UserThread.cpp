@@ -44,10 +44,7 @@ int UserThread::showUserMap(Display& InsDisplay, int y, int x)
     for(iter = usermap.begin(); iter != usermap.end(); iter++)
     {
         temp.s_addr = iter->first;
-        InsDisplay.add_print("%u", temp.s_addr);
-        InsDisplay.mv(y++, x);
-        InsDisplay.add_print("%s", inet_ntoa(temp));
-        //printf("[IP]:%s\n", );
+        InsDisplay.mv_printf(y++, x, "%s", inet_ntoa(temp));
     }
     return 0;
 }
@@ -59,7 +56,7 @@ int UserThread::ageingUserMap()						/* 更新用户列表 */
     for(iter = usermap.begin(); iter != usermap.end(); iter++)
     {
         iter->second.user_time--;
-        if(iter->second.user_time < 0)				/* 自动老化 */
+        if(0 == iter->second.user_time)				/* 自动老化 */
         {
             usermap.erase(iter);
         }
@@ -71,36 +68,39 @@ int UserThread::select_loop()						/* 选择对方循环 */
 {
     int t = 0;
     char ch = 0;
-    int lx = COLS/2 - 8;
-    int ly = LINES/2;
     Display InsDisplay;
+    const int base_x = COLS/2 - 7;
+    const int base_y = LINES/2;
+    int lx = base_x;
+    int ly = base_y;
     sock_item_t tempSock;
-    std::map<uint32_t, S_user>::iterator iter = usermap.begin();
-    showUserMap(InsDisplay, ly, lx);
+    showUserMap(InsDisplay, base_y, base_x);
     while(GAME_SELECT == _game_state)
     {
+        std::map<uint32_t, S_user>::iterator iter = usermap.begin();
+        InsDisplay.mv_addch(ly, lx - 2, '>');
         ch = InsDisplay.get_char();					/* 非阻塞读取输入 */
         switch (ch)
         {
         case 'w':									/* 上移光标 */
         case 'W':
-            InsDisplay.mv_addch(ly, lx, ' ');
+            InsDisplay.mv_addch(ly, lx - 2, ' ');
             if(iter != usermap.begin())
             {
                 iter--;
                 ly--;
             }
-            InsDisplay.mv_addch(ly, lx, '>');
+            InsDisplay.mv_addch(ly, lx - 2, '>');
             break;
         case 's':									/* 下移光标 */
         case 'S':
-            InsDisplay.mv_addch(ly, lx, ' ');
+            InsDisplay.mv_addch(ly, lx - 2, ' ');
             if(iter != usermap.end())
             {
                 iter++;
                 ly++;
             }
-            InsDisplay.mv_addch(ly, lx, '>');
+            InsDisplay.mv_addch(ly, lx - 2, '>');
             break;
         case 'j':									/* 向选中的ip发送对战请求 */
         case 'J':
@@ -212,7 +212,9 @@ int UserThread::select_loop()						/* 选择对方循环 */
         {
             t = 0;
             ageingUserMap();                        /* 1s */
-            //showUserMap(InsDisplay, ly, lx);
+            InsDisplay.clean();
+            showUserMap(InsDisplay, base_y, base_x);
+            //InsDisplay.refresh();
         }
         msleep(50);
         t++;

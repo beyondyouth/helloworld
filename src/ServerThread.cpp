@@ -43,7 +43,9 @@ void ServerThread::run()
 	while(GAME_EXIT != _game_state)
 	{
         struct sockaddr_in clientAddr;
-        clientAddr.sin_addr.s_addr = 0x0a000001;
+        clientAddr.sin_addr.s_addr = 0x0a030301;
+        insertUserMap(clientAddr);
+		clientAddr.sin_addr.s_addr = 0x0a030202;
         insertUserMap(clientAddr);
         #if 0
 		tempSock.psock = new UdpServer();

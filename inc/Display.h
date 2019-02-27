@@ -7,13 +7,13 @@ class Display
 public:
     Display();
     ~Display();
+    void clean();
     void refresh();
     void fight_map(void);
     int get_char(void);
-    int mv(int y, int x);
     int mv_addch(int y, int x, char ch);
     int mv_addins(int y, int x, int d, char ch);
-    void add_print(const char *cmd, ...);
+    int mv_printf(int y, int x, const char *cmd, ...);
 private:
     
 };

@@ -29,6 +29,11 @@ Display::~Display()
 	endwin();
 }
 
+void Display::clean()
+{
+	clear();
+}
+
 void Display::refresh()
 {
 	wrefresh(stdscr);
@@ -42,11 +47,6 @@ void Display::fight_map()
 int Display::get_char()
 {
     return getch();
-}
-
-int Display::mv(int y, int x)
-{
-	return mvwin(stdscr, y, x);
 }
 
 int Display::mv_addch(int y, int x, char ch)
@@ -77,10 +77,12 @@ int Display::mv_addins(int y, int x, int d, char ch)
 	return 0;
 }
 
-void Display::add_print(const char *cmd, ...)
+int Display::mv_printf(int y, int x, const char *cmd, ...)
 {
+	char buf[256] = {0};
     va_list args;       //定义一个va_list类型的变量，用来储存单个参数
     va_start(args,cmd); //使args指向可变参数的第一个参数
-    printw(cmd,args);   //必须用vprintf等带V的
+    vsprintf(buf, cmd,args);   //必须用vprintf等带V的
     va_end(args);       //结束可变参数的获取
+	return mvprintw(y, x, buf);
 }
