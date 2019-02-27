@@ -42,6 +42,10 @@ void ServerThread::run()
 
 	while(GAME_EXIT != _game_state)
 	{
+        struct sockaddr_in clientAddr;
+        clientAddr.sin_addr.s_addr = 0x0a000001;
+        insertUserMap(clientAddr);
+        #if 0
 		tempSock.psock = new UdpServer();
 		tempSock.psock->init(NULL, 6789);
 		tempSock.psock->setSocketBlock();
@@ -57,7 +61,7 @@ void ServerThread::run()
 			//printf("recvfrom [%s]:%s\n", inet_ntoa(_pInsUdp->getClientAddr().sin_addr), tempBuf);
 			if(!memcmp(heart_req.c_str(), tempSock.data, heart_req.length()))
 			{	/* broadcast */
-				updateUserMap(tempSock.psock->getClientAddr());
+				insertUserMap(tempSock.psock->getClientAddr());
 				if(NULL == tempSock.data)
 				{
 					free(tempSock.data);
@@ -73,12 +77,12 @@ void ServerThread::run()
 				pRecvQueue->Queue_Put(&tempSock, sizeof(sock_item_t));
 			}
 		}
-		
+		#endif
 		msleep(50);
 	}
 }
 
-int ServerThread::updateUserMap(sockaddr_in clientAddr)
+int ServerThread::insertUserMap(sockaddr_in clientAddr)
 {
 	S_user temp;
 	temp.user_time = 3;

@@ -36,10 +36,15 @@ void UserThread::run()
 int UserThread::showUserMap(Display& InsDisplay, int y, int x)
 {
 	std::map<uint32_t, S_user>::iterator iter;
+    if(0 == usermap.size())
+    {
+        return -1;
+    }
     in_addr temp;
     for(iter = usermap.begin(); iter != usermap.end(); iter++)
     {
         temp.s_addr = iter->first;
+        InsDisplay.add_print("%u", temp.s_addr);
         InsDisplay.mv(y++, x);
         InsDisplay.add_print("%s", inet_ntoa(temp));
         //printf("[IP]:%s\n", );
@@ -47,7 +52,7 @@ int UserThread::showUserMap(Display& InsDisplay, int y, int x)
     return 0;
 }
 
-int UserThread::updateUserMap()						/* 更新用户列表 */
+int UserThread::ageingUserMap()						/* 更新用户列表 */
 {
 	std::map<uint32_t, S_user>::iterator iter;
 
@@ -206,8 +211,8 @@ int UserThread::select_loop()						/* 选择对方循环 */
         if(t == 20)
         {
             t = 0;
-            updateUserMap();                        /* 1s */
-            showUserMap(InsDisplay, ly, lx);
+            ageingUserMap();                        /* 1s */
+            //showUserMap(InsDisplay, ly, lx);
         }
         msleep(50);
         t++;
@@ -324,7 +329,7 @@ int UserThread::fight_loop()
         if(t == 20)
         {
             t = 0;
-            updateUserMap();                        /* 1s */
+            ageingUserMap();                        /* 1s */
         }
         msleep(50);
         t++;

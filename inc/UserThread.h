@@ -24,7 +24,7 @@ class UserThread : public Thread
 public:
     void run();
     int get_char();
-    int updateUserMap(void);
+    int ageingUserMap(void);
     int showUserMap(Display& InsDisplay, int y, int x);
     int select_loop(void);
     int fight_loop(void);

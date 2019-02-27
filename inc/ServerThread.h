@@ -8,7 +8,7 @@ class ServerThread : public Thread
 public:
 	ServerThread();
 	~ServerThread();
-	int updateUserMap(sockaddr_in clientAddr);
+	int insertUserMap(sockaddr_in clientAddr);
 protected:
 	virtual void run();
 };
