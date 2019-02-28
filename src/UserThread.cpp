@@ -85,7 +85,7 @@ int UserThread::select_loop()						/* 选择对方循环 */
         case 'w':									/* 上移光标 */
         case 'W':
             InsDisplay.mv_addch(ly, lx - 2, ' ');
-            if(iter != usermap.begin())
+            if(ly > base_y)
             {
                 iter--;
                 ly--;
@@ -95,8 +95,9 @@ int UserThread::select_loop()						/* 选择对方循环 */
         case 's':									/* 下移光标 */
         case 'S':
             InsDisplay.mv_addch(ly, lx - 2, ' ');
-            if(iter != usermap.end())
+            if(ly - base_y < (int)usermap.size() - 1)
             {
+                
                 iter++;
                 ly++;
             }
