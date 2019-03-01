@@ -10,11 +10,11 @@ typedef struct LNode{
 typedef struct{
     Mutex               *tableMutex;       // 表锁 
     
-    uint32_t            length;            // 已使用数
+    uint32_t            length;            // 表长
 
-    LNode_t             headNode;          // 队首：指向队头元素
-    LNode_t             *head;
-    LNode_t             *tail;              // 队尾：指向队尾元素的”下一个“位置
+    LNode_t             headNode;          // 头节点
+    LNode_t             *head;             // 头指针
+    LNode_t             *tail;             // 尾指针
 }List_t;
 
 class List
@@ -25,9 +25,9 @@ public:
     
     List_t         *List_Make       ();
 
-    // 插入队尾
+    // 在p节点之前插入s节点
     int             List_Insert     (LNode_t *p, LNode_t *s);
-    // 从队首取
+    // 删除p节点，返回data
     int             List_Delete     (LNode_t *p, uint32_t *val);
 
     uint32_t        List_GetLength  (void);
