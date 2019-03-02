@@ -21,7 +21,7 @@ Display::Display()
 
     timeout(0);				/* 输入阻塞0ms */
 
-	clear();
+	clean();
 }
 
 Display::~Display()
@@ -31,7 +31,7 @@ Display::~Display()
 
 void Display::clean()
 {
-	clear();
+	wclear(stdscr);
 }
 
 void Display::refresh()
@@ -46,30 +46,30 @@ void Display::fight_map()
 
 int Display::get_char()
 {
-    return getch();
+    return wgetch(stdscr);
 }
 
 int Display::mv_addch(int y, int x, char ch)
 {
-	return mvaddch(y, x, ch);
+	return mvwaddch(stdscr, y, x, ch);
 }
 
 int Display::mv_addins(int y, int x, int d, char ch)
 {
-	mvaddch(y, x, ch);
+	mv_addch(y, x, ch);
 	switch(d)
 	{
 		case 0:
-		mvaddch(y-1, x, ch);
+		mv_addch(y-1, x, ch);
 		break;
 		case 1:
-		mvaddch(y, x-1, ch);
+		mv_addch(y, x-1, ch);
 		break;
 		case 2:
-		mvaddch(y+1, x, ch);
+		mv_addch(y+1, x, ch);
 		break;
 		case 3:
-		mvaddch(y, x+1, ch);
+		mv_addch(y, x+1, ch);
 		break;
 		default:
 		break;
@@ -84,5 +84,5 @@ int Display::mv_printf(int y, int x, const char *cmd, ...)
     va_start(args,cmd); //使args指向可变参数的第一个参数
     vsprintf(buf, cmd,args);   //必须用vprintf等带V的
     va_end(args);       //结束可变参数的获取
-	return mvprintw(y, x, buf);
+	return mvwprintw(stdscr, y, x, buf);
 }
