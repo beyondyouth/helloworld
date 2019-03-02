@@ -34,7 +34,7 @@ public:
 
     // 在p节点之前插入s节点
     int             List_Insert_Before  (LNode_t *p, LNode_t *s);
-    // 在p节点之前插入s节点
+    // 在p节点之后插入s节点
     int             List_Insert_After   (LNode_t *p, LNode_t *s);
     // 删除p节点，返回data
     int             List_Delete     (LNode_t *p, LData_t *val);

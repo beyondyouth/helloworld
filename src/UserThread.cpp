@@ -29,7 +29,8 @@ in_addr serverAddr;
 void UserThread::run()
 {
     _game_state = GAME_SELECT;
-    select_loop();
+//    select_loop();
+    _game_state = GAME_FIGHT;
     fight_loop();
     gameover_loop();
 }
@@ -360,7 +361,6 @@ int UserThread::gameover_loop(void)
 int UserThread::move_myself_bullet_list(Display& ins)
 {
     LNode_t *p = NULL;
-    LNode_t *q = NULL;
     for(p = _myself_bullet_list->List_GetHead(); p->next != NULL; )
     {
         ins.mv_addch(p->next->data.y, p->next->data.x, ' ');
@@ -383,12 +383,7 @@ int UserThread::move_myself_bullet_list(Display& ins)
         }
         if(p->next->data.x < 1 || p->next->data.x > _cols || p->next->data.y < 1 || p->next->data.y > _lines)
         {											/* 移动到边界的子弹从子弹链表中删除 */
-            q = p->next->next;
-            if(NULL != p->next)
-            {
-                free(p->next);
-            }
-            p->next = q;
+            _myself_bullet_list->List_Delete(p->next, NULL);
             continue;
         }
         ins.mv_addch(p->next->data.y, p->next->data.x, 'o');//显示p->next
@@ -401,7 +396,6 @@ int UserThread::move_myself_bullet_list(Display& ins)
 int UserThread::move_others_bullet_list(Display& ins)
 {
     LNode_t *p = NULL;
-    LNode_t *q = NULL;
     for(p = _others_bullet_list->List_GetHead(); p->next != NULL; )
     {
         ins.mv_addch(p->next->data.y, p->next->data.x, ' ');
@@ -424,12 +418,7 @@ int UserThread::move_others_bullet_list(Display& ins)
         }
         if(p->next->data.x < 1 || p->next->data.x > _cols || p->next->data.y < 1 || p->next->data.y > _lines)
         {											/* 移动到边界的子弹从子弹链表中删除 */
-            q = p->next->next;
-            if(NULL != p->next)
-            {
-                free(p->next);
-            }
-            p->next = q;
+            _others_bullet_list->List_Delete(p->next, NULL);
             continue;
         }
         ins.mv_addch(p->next->data.y, p->next->data.x, 'o');//显示p->next
