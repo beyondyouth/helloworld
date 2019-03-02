@@ -14,6 +14,7 @@
 #include "Mutex.h"
 #include "Queue.h"
 #include "Common.h"
+#include "List.h"
 #include "Display.h"
 #include "UdpServer.h"
 #include "UserThread.h"

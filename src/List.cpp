@@ -2,46 +2,36 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "Common.h"
 #include "Mutex.h"
 #include "List.h"
 
 #if 0
 void List_TestSelf(void)
 {
-    uint32_t item_len, capacity, count, overflow;
-    char testkey[32];
-    char testvalue[32];
-    char value_buf[1024];
     int ii;
-
-    capacity = 1000;
-    item_len = 64;
     
-    List test = List(capacity, item_len);
+    List test = List();
 
     // 增加/删除/修改
-    test.List_Put("foo1", 8);
-    test.List_Put("foo1", 8);
-    test.List_Put("foo2", 8);
-    test.List_Put("foo3", 8);
+    
 
-    for (ii=0; ii < 10000; ii++)
+    for (ii=0; ii < 100; ii++)
     {
-        sprintf(testkey, "foo%d", ii);
-        sprintf(testvalue, "FOO%d", ii);
+        LNode_t *s = (LNode_t *)malloc(sizeof(LNode_t));
 
-        test.List_Put(testkey, strlen(testkey));
+        s->data = ii;
         
-        if (0 == ii%10)
-        {
-            test.List_Get(value_buf, sizeof(value_buf));
-        }
+        test.List_Insert_After(test.List_GetHead(), s);
         
     }
-
+    for(LNode_t *p = test.List_GetHead(); p->next != NULL; p = p->next)
+    {
+        printf("---%d---\n", p->next->data);
+    }
     // 统计
-	test.List_Statistics(&capacity, &count, &overflow);
     test.List_Clear();
+    printf("-----len:%d-----\n", test.List_GetLength());
 }
 #endif
 
@@ -52,6 +42,7 @@ List::List()
 
 List::~List()
 {
+    List_Clear();
     if(NULL != _ht)
     {
 	    delete(_ht->tableMutex);
@@ -91,9 +82,18 @@ void List::List_Unlock(void)
     _ht->tableMutex->unlock();
 }
 
+LNode_t* List::List_GetHead(void)
+{
+    return _ht->head;
+}
+
+LNode_t* List::List_GetTail(void)
+{
+    return _ht->tail;
+}
 
 // 删除p节点，并返回它的数据元素
-int List::List_Delete(LNode_t *p, uint32_t *val)
+int List::List_Delete(LNode_t *p, LData_t *val)
 {
     int rtnValue = -1;
 
@@ -101,16 +101,32 @@ int List::List_Delete(LNode_t *p, uint32_t *val)
     {
         return rtnValue;
     }
+
+    if(p == _ht->head)
+    {
+        return rtnValue;
+    }
+
 	List_Lock();
 	
     if(NULL != val)
     {
         *val = p->data;
     }
-
-	p->prior->next = p->next;
-	p->next->prior = p->prior;
+    
+    if(p == _ht->tail)
+    {
+        p->prior->next = p->next;
+        _ht->tail = p->prior;
+    }
+    else
+    {
+        p->prior->next = p->next;
+	    p->next->prior = p->prior;
+    }
+    
 	free(p);
+    _ht->length--;
     List_Unlock();
     rtnValue = 0;
     
@@ -118,7 +134,38 @@ int List::List_Delete(LNode_t *p, uint32_t *val)
 }
 
 // 在p节点之前插入s节点
-int List::List_Insert(LNode_t *p, LNode_t *s)
+int List::List_Insert_Before(LNode_t *p, LNode_t *s)
+{
+    int rtnValue = -1;
+
+    if(NULL == p)
+    {
+        return rtnValue;
+    }
+    if(NULL == s)
+    {
+        return rtnValue;
+    }
+    if(p == _ht->head)
+    {
+        return rtnValue;
+    }
+
+    List_Lock();
+
+	s->prior = p->prior;
+	p->prior->next = s;
+	s->next = p;
+	p->prior = s;
+    _ht->length++;
+    List_Unlock();
+    rtnValue = 0;
+
+    return rtnValue;
+}
+
+
+int List::List_Insert_After(LNode_t *p, LNode_t *s)
 {
     int rtnValue = -1;
 
@@ -133,16 +180,25 @@ int List::List_Insert(LNode_t *p, LNode_t *s)
 
     List_Lock();
 
-	s->prior = p->prior;
-	p->prior->next = s;
-	s->next = p;
-	p->prior = s;
+    s->next = p->next;
+    if(p != _ht->tail)
+    {
+        p->next->prior = s;
+    }
+    s->prior = p;
+    p->next = s;
 
+    if(p == _ht->tail)
+    {
+        _ht->tail = s;
+    }
+
+    _ht->length++;
     List_Unlock();
 
+    rtnValue = 0;
     return rtnValue;
 }
-
 
 uint32_t List::List_GetLength(void)
 {
@@ -151,12 +207,9 @@ uint32_t List::List_GetLength(void)
 
 void List::List_Clear(void)
 {
-	List_Lock();
     while(NULL != _ht->headNode.next)
     {
         List_Delete(_ht->headNode.next, NULL);
-        _ht->headNode.next = _ht->headNode.next->next;
     }
-	List_Unlock();
 }
 

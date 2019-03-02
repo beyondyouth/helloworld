@@ -29,18 +29,12 @@ public:
     int select_loop(void);
     int fight_loop(void);
     int gameover_loop(void);
-    int create_myself_bullet_list();
-    int insert_myself_bullet_list(int y, int x, dir d);
+ 
     int move_myself_bullet_list(Display& ins);
-    int destroy_myself_bullet_list();
-
-    int create_others_bullet_list();
-    int insert_others_bullet_list(int y, int x, dir d);
     int move_others_bullet_list(Display& ins);
-    int destroy_others_bullet_list();
 private:
-    bullet_list_t _myself_bullet_list_head;
-    bullet_list_t _others_bullet_list_head;
+    List *_myself_bullet_list;
+    List *_others_bullet_list;
     int _cols;
     int _lines;
 };

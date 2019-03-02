@@ -11,6 +11,7 @@
 #include "Common.h"
 #include "Mutex.h"
 #include "Queue.h"
+#include "List.h"
 #include "Socket.h"
 #include "Debug.h"
 #include "Display.h"
@@ -239,14 +240,15 @@ int UserThread::fight_loop()
     dir rd = DOWN;//remote direction
     int rs = 0; //remote shoot
     sock_item_t tempSock;
-    create_myself_bullet_list();                    /* 创建子弹链表 */
-    create_others_bullet_list();
+    _myself_bullet_list = new List();               /* 创建子弹链表 */
+    _others_bullet_list = new List();
     InsDisplay.fight_map();							/* 绘制背景边框 */
 
     while(GAME_FIGHT == _game_state)
     {
         ls = 0;
         ch = InsDisplay.get_char();					/* 非阻塞读取输入 */
+        LNode_t *s = NULL;
         switch (ch)
         {
         case 'w':									/* 上移光标 */
@@ -276,7 +278,11 @@ int UserThread::fight_loop()
         case 'j':									/* 发射子弹 */
         case 'J':
             ls = 1;
-            insert_myself_bullet_list(ly, lx, ld);			/* 插入子弹 */
+            s = (LNode_t *)malloc(sizeof(LNode_t));
+            s->data.x = lx;
+            s->data.y = ly;
+            s->data.d = ld;
+            _myself_bullet_list->List_Insert_After(_myself_bullet_list->List_GetTail(), s); /* 插入子弹 */
             break;
         default:
             break;
@@ -295,7 +301,11 @@ int UserThread::fight_loop()
                 rs = strtol(tempSock.data + 18, NULL, 0);
                 if(1 == rs)
                 {
-                    insert_others_bullet_list(ry, rx, rd);
+                    LNode_t *s = (LNode_t *)malloc(sizeof(LNode_t));
+                    s->data.x = rx;
+                    s->data.y = ry;
+                    s->data.d = rd;
+                    _others_bullet_list->List_Insert_After(_others_bullet_list->List_GetTail(), s); /* 插入子弹 */
                 }
                 if(NULL != tempSock.data)
                 {
@@ -337,8 +347,8 @@ int UserThread::fight_loop()
         msleep(50);
         t++;
     }
-    destroy_myself_bullet_list();
-    destroy_others_bullet_list();
+    delete _myself_bullet_list;
+    delete _others_bullet_list;
     return 0;
 }
 
@@ -347,40 +357,11 @@ int UserThread::gameover_loop(void)
     return 0;
 }
 
-int UserThread::create_myself_bullet_list()
-{
-    _myself_bullet_list_head.next = NULL;
-    return 0;
-}
-
-int UserThread::insert_myself_bullet_list(int y, int x, dir d)
-{
-    bullet_list_t *tmp = NULL;
-    bullet_list_t *p = NULL;
-    tmp = (bullet_list_t*)malloc(sizeof(bullet_list_t));
-    if(NULL == tmp)
-    {
-        eprintf("malloc error\n");
-        return -1;
-    }
-    if(UP == d)y--;
-    if(LEFT == d)x--;
-    if(DOWN == d)y++;
-    if(RIGHT == d)x++;
-    tmp->data.x = x;
-    tmp->data.y = y;
-    tmp->data.d = d;
-    tmp->next = NULL;
-    for(p = &_myself_bullet_list_head; p->next != NULL; p = p->next);	/* 遍历到队尾插入 */
-    p->next = tmp;
-    return 0;
-}
-
 int UserThread::move_myself_bullet_list(Display& ins)
 {
-    bullet_list_t *p = NULL;
-    bullet_list_t *q = NULL;
-    for(p = &_myself_bullet_list_head; p->next != NULL; )
+    LNode_t *p = NULL;
+    LNode_t *q = NULL;
+    for(p = _myself_bullet_list->List_GetHead(); p->next != NULL; )
     {
         ins.mv_addch(p->next->data.y, p->next->data.x, ' ');
         switch(p->next->data.d)						/* 根据子弹发射时的方向移动子弹 */
@@ -416,55 +397,12 @@ int UserThread::move_myself_bullet_list(Display& ins)
     return 0;
 }
 
-int UserThread::destroy_myself_bullet_list()				/* 删除子弹链表 */
-{
-    bullet_list_t *p = NULL;
-    bullet_list_t *q = NULL;
-    for(p = &_myself_bullet_list_head; p->next != NULL;)
-    {
-        q = p->next->next;
-        if(NULL != p->next)
-        {
-            free(p->next);
-        }
-        p->next = q;
-    }
-    return 0;
-}
-
-int UserThread::create_others_bullet_list()
-{
-    _others_bullet_list_head.next = NULL;
-    return 0;
-}
-
-int UserThread::insert_others_bullet_list(int y, int x, dir d)
-{
-    bullet_list_t *tmp = NULL;
-    bullet_list_t *p = NULL;
-    tmp = (bullet_list_t*)malloc(sizeof(bullet_list_t));
-    if(NULL == tmp)
-    {
-        return -1;
-    }
-    if(UP == d)y--;
-    if(LEFT == d)x--;
-    if(DOWN == d)y++;
-    if(RIGHT == d)x++;
-    tmp->data.x = x;
-    tmp->data.y = y;
-    tmp->data.d = d;
-    tmp->next = NULL;
-    for(p = &_others_bullet_list_head; p->next != NULL; p = p->next);	/* 遍历到队尾插入 */
-    p->next = tmp;
-    return 0;
-}
 
 int UserThread::move_others_bullet_list(Display& ins)
 {
-    bullet_list_t *p = NULL;
-    bullet_list_t *q = NULL;
-    for(p = &_others_bullet_list_head; p->next != NULL; )
+    LNode_t *p = NULL;
+    LNode_t *q = NULL;
+    for(p = _others_bullet_list->List_GetHead(); p->next != NULL; )
     {
         ins.mv_addch(p->next->data.y, p->next->data.x, ' ');
         switch(p->next->data.d)						/* 根据子弹发射时的方向移动子弹 */
@@ -500,18 +438,3 @@ int UserThread::move_others_bullet_list(Display& ins)
     return 0;
 }
 
-int UserThread::destroy_others_bullet_list()				/* 删除子弹链表 */
-{
-    bullet_list_t *p = NULL;
-    bullet_list_t *q = NULL;
-    for(p = &_others_bullet_list_head; p->next != NULL;)
-    {
-        q = p->next->next;
-        if(NULL != p->next)
-        {
-            free(p->next);
-        }
-        p->next = q;
-    }
-    return 0;
-}
